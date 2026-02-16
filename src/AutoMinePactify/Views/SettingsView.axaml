@@ -1,0 +1,371 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AutoMinePactify.ViewModels"
+             x:Class="AutoMinePactify.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Button.preset">
+            <Setter Property="Background" Value="#2D2F45"/>
+            <Setter Property="Foreground" Value="#9CA0B4"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.preset:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#A855F7"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="14" Margin="0,0,0,10">
+
+            <!-- ── Comment tu veux miner ─────────────────────── -->
+            <TextBlock Text="COMMENT MINER"
+                       FontWeight="Bold" FontSize="13"
+                       Foreground="#A855F7"
+                       Margin="0,0,0,4"/>
+
+            <ComboBox SelectedIndex="{Binding SelectedPatternIndex}"
+                      HorizontalAlignment="Stretch">
+                <ComboBoxItem Content="Auto-Clic (un bloc a la fois)" />
+                <ComboBoxItem Content="Casse-Mur (un mur entier)" />
+                <ComboBoxItem Content="Casse-Sol (un sol entier)" />
+                <ComboBoxItem Content="Colonne (vers le bas + /home)" />
+                <ComboBoxItem Content="Full Auto (tout automatique)" />
+            </ComboBox>
+
+            <TextBlock Text="{Binding PatternDescription}"
+                       FontSize="11.5"
+                       Foreground="#6B7080"
+                       TextWrapping="Wrap"
+                       Margin="0,-4,0,4"/>
+
+            <!-- ── Ta pioche ─────────────────────────────────── -->
+            <Border Height="1" Background="#2D2F45" Margin="0,4"/>
+
+            <TextBlock Text="TA PIOCHE"
+                       FontWeight="Bold" FontSize="13"
+                       Foreground="#A855F7"
+                       Margin="0,0,0,4"/>
+
+            <TextBlock Text="Clique sur le bouton qui correspond a ta pioche :"
+                       FontSize="11" Foreground="#6B7080"
+                       Margin="0,0,0,2"/>
+
+            <Grid ColumnDefinitions="*,4,*" RowDefinitions="Auto,4,Auto">
+                <Button Grid.Row="0" Grid.Column="0"
+                        Content="Diamant"
+                        Command="{Binding PresetDiamondCommand}"
+                        Classes="preset"/>
+                <Button Grid.Row="0" Grid.Column="2"
+                        Content="Diamant Eff. V"
+                        Command="{Binding PresetDiamondEffCommand}"
+                        Classes="preset"/>
+                <Button Grid.Row="2" Grid.Column="0"
+                        Content="Netherite Eff. V"
+                        Command="{Binding PresetNetheriteEffCommand}"
+                        Classes="preset"/>
+                <Button Grid.Row="2" Grid.Column="2"
+                        Content="Neth. Eff V + Haste"
+                        Command="{Binding PresetNetheriteHasteCommand}"
+                        Classes="preset"/>
+            </Grid>
+
+            <StackPanel Spacing="2">
+                <TextBlock FontSize="11" Foreground="#6B7080">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="Choisi : {0} ({1} ms par bloc)">
+                            <Binding Path="PresetName"/>
+                            <Binding Path="MiningDurationMs"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </StackPanel>
+
+            <!-- ── Regler le temps a la main ─────────────────── -->
+            <StackPanel Spacing="4">
+                <TextBlock Text="Ou regle le temps a la main :" FontSize="12" Foreground="#C0C4D6"/>
+                <Grid ColumnDefinitions="*,60">
+                    <Slider Minimum="500" Maximum="10000"
+                            Value="{Binding MiningDurationMs}"
+                            TickFrequency="50" IsSnapToTickEnabled="True"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding MiningDurationMs, StringFormat={}{0} ms}"
+                               FontSize="11" Foreground="#9CA0B4"
+                               VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                </Grid>
+            </StackPanel>
+
+            <!-- ── Auto-Clic ─────────────────────────────────── -->
+            <StackPanel Spacing="8" IsVisible="{Binding IsAutoClick}">
+                <Border Height="1" Background="#2D2F45" Margin="0,4"/>
+
+                <TextBlock Text="AUTO-CLIC"
+                           FontWeight="Bold" FontSize="13"
+                           Foreground="#A855F7"
+                           Margin="0,0,0,4"/>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Combien de blocs a casser ?" FontSize="12" Foreground="#C0C4D6"/>
+                    <Grid ColumnDefinitions="*,60">
+                        <Slider Minimum="1" Maximum="200"
+                                Value="{Binding BlockCount}"
+                                TickFrequency="1" IsSnapToTickEnabled="True"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding BlockCount, StringFormat={}{0} blocs}"
+                                   FontSize="11" Foreground="#9CA0B4"
+                                   VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- ── Casse-Mur ─────────────────────────────────── -->
+            <StackPanel Spacing="8" IsVisible="{Binding IsWallBreaker}">
+                <Border Height="1" Background="#2D2F45" Margin="0,4"/>
+
+                <TextBlock Text="CASSE-MUR"
+                           FontWeight="Bold" FontSize="13"
+                           Foreground="#A855F7"
+                           Margin="0,0,0,4"/>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Largeur du mur (en blocs)" FontSize="12" Foreground="#C0C4D6"/>
+                    <Grid ColumnDefinitions="*,50">
+                        <Slider Minimum="1" Maximum="20"
+                                Value="{Binding WallWidth}"
+                                TickFrequency="1" IsSnapToTickEnabled="True"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding WallWidth}"
+                                   FontSize="11" Foreground="#9CA0B4"
+                                   VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Hauteur du mur (en blocs)" FontSize="12" Foreground="#C0C4D6"/>
+                    <Grid ColumnDefinitions="*,50">
+                        <Slider Minimum="1" Maximum="10"
+                                Value="{Binding WallHeight}"
+                                TickFrequency="1" IsSnapToTickEnabled="True"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding WallHeight}"
+                                   FontSize="11" Foreground="#9CA0B4"
+                                   VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+
+                <TextBlock FontSize="11" Foreground="#6B7080">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="Ca fait {0} blocs en tout">
+                            <Binding Path="TotalBlocks"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </StackPanel>
+
+            <!-- ── Casse-Sol ─────────────────────────────────── -->
+            <StackPanel Spacing="8" IsVisible="{Binding IsFloorMining}">
+                <Border Height="1" Background="#2D2F45" Margin="0,4"/>
+
+                <TextBlock Text="CASSE-SOL"
+                           FontWeight="Bold" FontSize="13"
+                           Foreground="#A855F7"
+                           Margin="0,0,0,4"/>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Largeur de la zone (en blocs)" FontSize="12" Foreground="#C0C4D6"/>
+                    <Grid ColumnDefinitions="*,50">
+                        <Slider Minimum="1" Maximum="20"
+                                Value="{Binding FloorWidth}"
+                                TickFrequency="1" IsSnapToTickEnabled="True"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding FloorWidth}"
+                                   FontSize="11" Foreground="#9CA0B4"
+                                   VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Longueur de la zone (en blocs)" FontSize="12" Foreground="#C0C4D6"/>
+                    <Grid ColumnDefinitions="*,50">
+                        <Slider Minimum="1" Maximum="20"
+                                Value="{Binding FloorDepth}"
+                                TickFrequency="1" IsSnapToTickEnabled="True"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding FloorDepth}"
+                                   FontSize="11" Foreground="#9CA0B4"
+                                   VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+
+                <TextBlock FontSize="11" Foreground="#6B7080">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="Ca fait {0} blocs en tout">
+                            <Binding Path="TotalBlocks"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </StackPanel>
+
+            <!-- ── Colonne ─────────────────────────────────── -->
+            <StackPanel Spacing="8" IsVisible="{Binding IsColumnMining}">
+                <Border Height="1" Background="#2D2F45" Margin="0,4"/>
+
+                <TextBlock Text="COLONNE"
+                           FontWeight="Bold" FontSize="13"
+                           Foreground="#A855F7"
+                           Margin="0,0,0,4"/>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Largeur de la colonne (en blocs)" FontSize="12" Foreground="#C0C4D6"/>
+                    <Grid ColumnDefinitions="*,50">
+                        <Slider Minimum="1" Maximum="10"
+                                Value="{Binding ColumnWidth}"
+                                TickFrequency="1" IsSnapToTickEnabled="True"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding ColumnWidth}"
+                                   FontSize="11" Foreground="#9CA0B4"
+                                   VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Longueur de la colonne (en blocs)" FontSize="12" Foreground="#C0C4D6"/>
+                    <Grid ColumnDefinitions="*,50">
+                        <Slider Minimum="1" Maximum="10"
+                                Value="{Binding ColumnLength}"
+                                TickFrequency="1" IsSnapToTickEnabled="True"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding ColumnLength}"
+                                   FontSize="11" Foreground="#9CA0B4"
+                                   VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Nombre de couches (profondeur)" FontSize="12" Foreground="#C0C4D6"/>
+                    <Grid ColumnDefinitions="*,50">
+                        <Slider Minimum="1" Maximum="100"
+                                Value="{Binding ColumnLayers}"
+                                TickFrequency="1" IsSnapToTickEnabled="True"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding ColumnLayers}"
+                                   FontSize="11" Foreground="#9CA0B4"
+                                   VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+
+                <TextBlock FontSize="11" Foreground="#6B7080">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="Ca fait {0} blocs en tout">
+                            <Binding Path="TotalBlocks"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+
+                <Border Height="1" Background="#2D2F45" Margin="0,4"/>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Nom du home (ce que tu as mis dans /sethome)" FontSize="12" Foreground="#C0C4D6"/>
+                    <TextBox Text="{Binding HomeName}"
+                             Watermark="ex: mine"
+                             FontSize="12"/>
+                </StackPanel>
+
+                <TextBlock Text="N'oublie pas de faire /sethome avec ce nom AVANT de lancer !"
+                           FontSize="10.5" Foreground="#FF6B6B"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <!-- ── Full Auto ────────────────────────────────── -->
+            <StackPanel Spacing="8" IsVisible="{Binding IsSmartMining}">
+                <Border Height="1" Background="#2D2F45" Margin="0,4"/>
+
+                <TextBlock Text="FULL AUTO"
+                           FontWeight="Bold" FontSize="13"
+                           Foreground="#A855F7"
+                           Margin="0,0,0,4"/>
+
+                <TextBlock Text="Minecraft doit etre en mode FENETRE (pas plein ecran) pour que ca marche."
+                           FontSize="11" Foreground="#FF6B6B"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,2"/>
+
+                <Border Background="#1E1F35" CornerRadius="6" Padding="10,8">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Etape 1 : Apprends la couleur de l'obsidienne"
+                                   FontSize="11.5" Foreground="#C0C4D6" FontWeight="SemiBold"/>
+                        <TextBlock Text="Regarde un bloc d'obsidienne dans Minecraft, puis clique sur le bouton :"
+                                   FontSize="11" Foreground="#6B7080" TextWrapping="Wrap"/>
+                        <Button Content="Apprendre la couleur"
+                                Command="{Binding DataContext.CalibrateObsidianCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                Background="#A855F7" Foreground="White"
+                                CornerRadius="5" Padding="12,6"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"/>
+                        <!-- Simple version -->
+                        <TextBlock FontSize="11" FontWeight="SemiBold"
+                                   IsVisible="{Binding IsCalibrated}"
+                                   Foreground="#4ADE80"
+                                   Text="Couleur apprise !"/>
+                        <TextBlock FontSize="11"
+                                   IsVisible="{Binding !IsCalibrated}"
+                                   Foreground="#FF6B6B"
+                                   Text="Pas encore calibre"/>
+                    </StackPanel>
+                </Border>
+
+                <CheckBox Content="Deconnecter si un joueur s'approche"
+                          IsChecked="{Binding PlayerSafetyEnabled}"
+                          FontSize="12"/>
+
+                <TextBlock Text="Si un pseudo apparait a l'ecran, l'outil appuie sur Echap et te deco du serveur."
+                           FontSize="10.5" Foreground="#6B7080"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding PlayerSafetyEnabled}"/>
+            </StackPanel>
+
+            <!-- ── Autres reglages ───────────────────────────── -->
+            <Border Height="1" Background="#2D2F45" Margin="0,4"/>
+
+            <TextBlock Text="AUTRES REGLAGES"
+                       FontWeight="Bold" FontSize="13"
+                       Foreground="#A855F7"
+                       Margin="0,0,0,4"/>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="Case de ta pioche dans la barre (1 a 9)" FontSize="12" Foreground="#C0C4D6"/>
+                <NumericUpDown Minimum="1" Maximum="9"
+                               Value="{Binding PickaxeSlot}"
+                               FormatString="0"
+                               HorizontalAlignment="Stretch"/>
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="Pause entre chaque action (en ms)" FontSize="12" Foreground="#C0C4D6"/>
+                <Grid ColumnDefinitions="*,60">
+                    <Slider Minimum="50" Maximum="500"
+                            Value="{Binding ActionDelayMs}"
+                            TickFrequency="10" IsSnapToTickEnabled="True"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding ActionDelayMs, StringFormat={}{0} ms}"
+                               FontSize="11" Foreground="#9CA0B4"
+                               VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                </Grid>
+            </StackPanel>
+
+            <CheckBox Content="S'accroupir en marchant (pour pas tomber)"
+                      IsChecked="{Binding AntiChute}"
+                      FontSize="12"/>
+
+            <CheckBox Content="Bouger un peu au hasard (moins detectable)"
+                      IsChecked="{Binding HumanizeDelays}"
+                      FontSize="12"/>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

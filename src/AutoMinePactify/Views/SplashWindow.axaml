@@ -1,0 +1,127 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AutoMinePactify.Views.SplashWindow"
+        Title="AutoMine Obsidienne"
+        Width="480" Height="320"
+        CanResize="False"
+        SystemDecorations="None"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True">
+
+    <Border CornerRadius="16"
+            ClipToBounds="True">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#0D0B1A" Offset="0"/>
+                <GradientStop Color="#1A1035" Offset="0.5"/>
+                <GradientStop Color="#0D0B1A" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+
+        <Grid RowDefinitions="*,Auto,Auto,Auto,Auto,*">
+
+            <!-- Glow effect derriere le logo -->
+            <Border Grid.Row="0" Grid.RowSpan="6"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Width="200" Height="200"
+                    Margin="0,-40,0,0"
+                    CornerRadius="100"
+                    Opacity="0.15">
+                <Border.Background>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#A855F7" Offset="0"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <!-- Logo OBS -->
+            <Border Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    Background="#2D1B4E"
+                    CornerRadius="14"
+                    Padding="18,12"
+                    Margin="0,0,0,14">
+                <Border.BoxShadow>0 0 30 5 #40A855F7</Border.BoxShadow>
+                <TextBlock Text="OBS"
+                           FontSize="28" FontWeight="Black"
+                           Foreground="#A855F7"
+                           HorizontalAlignment="Center"/>
+            </Border>
+
+            <!-- Titre -->
+            <StackPanel Grid.Row="2" HorizontalAlignment="Center" Spacing="4" Margin="0,0,0,20">
+                <TextBlock Text="AutoMine Obsidienne"
+                           FontSize="24" FontWeight="Bold"
+                           Foreground="#E8EAF0"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Pactify Edition"
+                           FontSize="13"
+                           Foreground="#7C3AED"
+                           HorizontalAlignment="Center"
+                           FontWeight="SemiBold"/>
+            </StackPanel>
+
+            <!-- Barre de chargement -->
+            <Grid Grid.Row="3" Margin="60,0,60,8">
+                <Border Background="#1A1530" CornerRadius="4" Height="6"/>
+                <Border Name="LoadingBar"
+                        Background="#A855F7"
+                        CornerRadius="4" Height="6"
+                        HorizontalAlignment="Left"
+                        Width="0">
+                    <Border.BoxShadow>0 0 12 2 #60A855F7</Border.BoxShadow>
+                </Border>
+            </Grid>
+
+            <!-- Texte de chargement -->
+            <TextBlock Grid.Row="4"
+                       Name="LoadingText"
+                       Text="Initialisation..."
+                       FontSize="11"
+                       Foreground="#6B7080"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,16"/>
+
+            <!-- Credit + version en bas -->
+            <StackPanel Grid.Row="5"
+                        VerticalAlignment="Bottom"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,20"
+                        Spacing="4">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
+                    <TextBlock Text="by"
+                               FontSize="12"
+                               Foreground="#4A4860"/>
+                    <TextBlock Text="dialogue__"
+                               FontSize="14"
+                               FontWeight="Bold"
+                               Foreground="#C4B5FD"/>
+                </StackPanel>
+                <TextBlock Name="VersionText"
+                           Text=""
+                           FontSize="10"
+                           Foreground="#3D3A55"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Bordure subtile -->
+            <Border Grid.Row="0" Grid.RowSpan="6"
+                    CornerRadius="16"
+                    BorderThickness="1"
+                    IsHitTestVisible="False">
+                <Border.BorderBrush>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Color="#30A855F7" Offset="0"/>
+                        <GradientStop Color="#10A855F7" Offset="0.5"/>
+                        <GradientStop Color="#30A855F7" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.BorderBrush>
+            </Border>
+
+        </Grid>
+    </Border>
+</Window>
