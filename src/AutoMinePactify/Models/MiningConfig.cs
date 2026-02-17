@@ -9,6 +9,20 @@ public enum MiningPatternType
     SmartMining
 }
 
+/// <summary>
+/// Mode de deplacement pour le minage en colonne.
+/// Determine la vitesse a laquelle le bot recule et se decale.
+/// </summary>
+public enum ColumnMoveMode
+{
+    /// <summary>Marche normale (~4.3 blocs/s, ~232ms/bloc)</summary>
+    Walk,
+    /// <summary>Sprint (~5.6 blocs/s, ~178ms/bloc)</summary>
+    Sprint,
+    /// <summary>Accroupi (~1.3 blocs/s, ~772ms/bloc)</summary>
+    Sneak
+}
+
 public class MiningConfig
 {
     public MiningPatternType PatternType { get; set; } = MiningPatternType.AutoClick;
@@ -43,6 +57,7 @@ public class MiningConfig
     public int ColumnLength { get; set; } = 2;
     public int ColumnLayers { get; set; } = 10;
     public string HomeName { get; set; } = "mine";
+    public ColumnMoveMode ColumnMovement { get; set; } = ColumnMoveMode.Walk;
 
     // ── Full Auto : detection joueurs + rayon de scan ──
     public bool PlayerSafetyEnabled { get; set; } = true;

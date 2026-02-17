@@ -1,0 +1,150 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AutoMinePactify.Views.UpdateRequiredWindow"
+        Title="Mise a jour en cours"
+        Width="500" Height="380"
+        CanResize="False"
+        SystemDecorations="None"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True">
+
+    <Border CornerRadius="16"
+            ClipToBounds="True">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#0D0B1A" Offset="0"/>
+                <GradientStop Color="#1A1035" Offset="0.5"/>
+                <GradientStop Color="#0D0B1A" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+
+        <Grid RowDefinitions="*,Auto,Auto,Auto,Auto,Auto,Auto,*">
+
+            <!-- Glow violet -->
+            <Border Grid.Row="0" Grid.RowSpan="8"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Width="200" Height="200"
+                    Margin="0,-30,0,0"
+                    CornerRadius="100"
+                    Opacity="0.12">
+                <Border.Background>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#A855F7" Offset="0"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <!-- Logo -->
+            <Image Grid.Row="1"
+                   Source="/Assets/logo.png"
+                   Width="80" Height="54"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,12"/>
+
+            <!-- Titre -->
+            <StackPanel Grid.Row="2" HorizontalAlignment="Center" Spacing="6" Margin="0,0,0,12">
+                <TextBlock Name="TitleText"
+                           Text="MISE A JOUR DISPONIBLE"
+                           FontSize="20" FontWeight="Bold"
+                           Foreground="#A855F7"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Name="VersionInfo"
+                           Text=""
+                           FontSize="13"
+                           Foreground="#9CA0B4"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Status / Changelog -->
+            <Border Grid.Row="3" Margin="40,0,40,12"
+                    Background="#1A1020" CornerRadius="10"
+                    Padding="16,12"
+                    BorderBrush="#2D1A3A" BorderThickness="1">
+                <StackPanel Spacing="6">
+                    <TextBlock Name="StatusText"
+                               Text="Telechargement automatique dans un instant..."
+                               FontSize="12"
+                               Foreground="#C0C4D6"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Name="ChangelogText"
+                               Text=""
+                               FontSize="11"
+                               Foreground="#6B7080"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Barre de progression -->
+            <Grid Grid.Row="4" Margin="50,0,50,6">
+                <Border Background="#1A1530" CornerRadius="5" Height="10"/>
+                <Border Name="ProgressBar"
+                        Background="#A855F7"
+                        CornerRadius="5" Height="10"
+                        HorizontalAlignment="Left"
+                        Width="0">
+                    <Border.BoxShadow>0 0 12 2 #60A855F7</Border.BoxShadow>
+                </Border>
+            </Grid>
+
+            <!-- Pourcentage -->
+            <TextBlock Grid.Row="5"
+                       Name="ProgressText"
+                       Text="0%"
+                       FontSize="12"
+                       Foreground="#9CA0B4"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,12"/>
+
+            <!-- Bouton quitter (visible seulement en cas d'erreur) -->
+            <StackPanel Grid.Row="6" Orientation="Horizontal"
+                        HorizontalAlignment="Center" Spacing="12"
+                        Margin="0,0,0,8">
+                <Button Name="RetryButton"
+                        Content="Reessayer"
+                        Background="#A855F7" Foreground="White"
+                        FontWeight="SemiBold" FontSize="13"
+                        CornerRadius="8" Padding="20,10"
+                        Cursor="Hand"
+                        IsVisible="False"/>
+                <Button Name="QuitButton"
+                        Content="Quitter"
+                        Background="#2D2F45" Foreground="#9CA0B4"
+                        FontSize="12"
+                        CornerRadius="8" Padding="16,8"
+                        Cursor="Hand"
+                        IsVisible="False"/>
+            </StackPanel>
+
+            <!-- Version actuelle -->
+            <TextBlock Grid.Row="7"
+                       Name="CurrentVersionText"
+                       Text=""
+                       FontSize="10"
+                       Foreground="#3D3A55"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Bottom"
+                       Margin="0,0,0,14"/>
+
+            <!-- Bordure subtile -->
+            <Border Grid.Row="0" Grid.RowSpan="8"
+                    CornerRadius="16"
+                    BorderThickness="1"
+                    IsHitTestVisible="False">
+                <Border.BorderBrush>
+                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                        <GradientStop Color="#30A855F7" Offset="0"/>
+                        <GradientStop Color="#10A855F7" Offset="0.5"/>
+                        <GradientStop Color="#30A855F7" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.BorderBrush>
+            </Border>
+
+        </Grid>
+    </Border>
+</Window>

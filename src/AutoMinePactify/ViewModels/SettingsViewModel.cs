@@ -29,6 +29,7 @@ public partial class SettingsViewModel : ObservableObject
         ColumnLength = s.ColumnLength;
         ColumnLayers = s.ColumnLayers;
         HomeName = s.HomeName;
+        ColumnMovement = s.ColumnMovement;
         PlayerSafetyEnabled = s.PlayerSafetyEnabled;
         ScanRadius = s.ScanRadius;
     }
@@ -56,6 +57,7 @@ public partial class SettingsViewModel : ObservableObject
             ColumnLength = ColumnLength,
             ColumnLayers = ColumnLayers,
             HomeName = HomeName,
+            ColumnMovement = ColumnMovement,
             PlayerSafetyEnabled = PlayerSafetyEnabled,
             ScanRadius = ScanRadius
         });
@@ -77,6 +79,12 @@ public partial class SettingsViewModel : ObservableObject
                 OnPropertyChanged();
             }
         }
+    }
+
+    [RelayCommand]
+    private void SelectMode(string index)
+    {
+        SelectedPatternIndex = int.Parse(index);
     }
 
     partial void OnSelectedPatternChanged(MiningPatternType value)
@@ -103,7 +111,7 @@ public partial class SettingsViewModel : ObservableObject
         MiningPatternType.AutoClick => "Tu te mets devant l'obsidienne et il casse tout seul, un bloc apres l'autre.",
         MiningPatternType.WallBreaker => "Il casse un mur entier d'obsidienne tout seul, de haut en bas.",
         MiningPatternType.FloorMining => "Il casse le sol d'obsidienne sous tes pieds en avancant tout seul.",
-        MiningPatternType.ColumnMining => "Il mine une colonne vers le bas couche par couche, et fait /home pour revenir en haut.",
+        MiningPatternType.ColumnMining => "Il mine une colonne position par position vers le bas, recule avec /home et decale avec /sethome.",
         MiningPatternType.SmartMining => "Il detecte l'obsidienne a l'ecran tout seul et la mine. Si un joueur s'approche, il te deco.",
         _ => ""
     };
@@ -132,11 +140,13 @@ public partial class SettingsViewModel : ObservableObject
         MiningPatternType.ColumnMining =>
             "1. Mets ta pioche dans la bonne case de ta barre (en bas)\n" +
             "2. Va sur la colonne d'obsidienne que tu veux miner\n" +
-            "3. Place-toi AU DESSUS, dans un COIN de la zone a miner\n" +
+            "3. Place-toi AU DESSUS, dans un COIN, camera 90/90 (droit vers le bas)\n" +
             "4. Fais /sethome [nom] a cette position (ex: /sethome mine)\n" +
             "5. Mets le MEME nom de home dans les reglages\n" +
-            "6. Appuie sur F6 pour lancer (t'as 3 secondes)\n" +
-            "7. Il mine une couche, fait /home, et recommence la suivante",
+            "6. Choisis la profondeur, largeur, longueur et le mode de deplacement\n" +
+            "7. Appuie sur F6 pour lancer (t'as 3 secondes)\n" +
+            "8. Il recule, mine en profondeur, /home, et recommence\n" +
+            "9. Il se decale a gauche avec /sethome pour les bandes suivantes",
         MiningPatternType.SmartMining =>
             "1. Mets ta pioche dans la bonne case de ta barre (en bas)\n" +
             "2. Minecraft doit etre en mode FENETRE (pas plein ecran)\n" +
@@ -173,17 +183,10 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void PresetNetheriteEff()
+    private void PresetEmeraldEff()
     {
         MiningDurationMs = 2350;
-        PresetName = "Netherite Eff. V";
-    }
-
-    [RelayCommand]
-    private void PresetNetheriteHaste()
-    {
-        MiningDurationMs = 1100;
-        PresetName = "Netherite Eff. V + Haste II";
+        PresetName = "Emeraude Eff. V";
     }
 
     // ─── Auto-Clic : combien de blocs ───────────────────────────────
@@ -220,6 +223,32 @@ public partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty]
     private string _homeName = "mine";
+
+    [ObservableProperty]
+    private ColumnMoveMode _columnMovement = ColumnMoveMode.Walk;
+
+    partial void OnColumnMovementChanged(ColumnMoveMode value)
+    {
+        OnPropertyChanged(nameof(IsColumnWalk));
+        OnPropertyChanged(nameof(IsColumnSprint));
+        OnPropertyChanged(nameof(IsColumnSneak));
+    }
+
+    public bool IsColumnWalk => ColumnMovement == ColumnMoveMode.Walk;
+    public bool IsColumnSprint => ColumnMovement == ColumnMoveMode.Sprint;
+    public bool IsColumnSneak => ColumnMovement == ColumnMoveMode.Sneak;
+
+    [RelayCommand]
+    private void SelectColumnMoveMode(string mode)
+    {
+        ColumnMovement = mode switch
+        {
+            "0" => ColumnMoveMode.Walk,
+            "1" => ColumnMoveMode.Sprint,
+            "2" => ColumnMoveMode.Sneak,
+            _ => ColumnMoveMode.Walk
+        };
+    }
 
     // ─── Calcul du total de blocs ───────────────────────────────────
 
@@ -286,6 +315,7 @@ public partial class SettingsViewModel : ObservableObject
         ColumnLength = ColumnLength,
         ColumnLayers = ColumnLayers,
         HomeName = HomeName,
+        ColumnMovement = ColumnMovement,
         PlayerSafetyEnabled = PlayerSafetyEnabled,
         ScanRadiusPixels = ScanRadius
     };

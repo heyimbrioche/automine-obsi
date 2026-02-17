@@ -76,6 +76,7 @@ public static class NativeMethods
     public const ushort VK_SPACE = 0x20;
     public const ushort VK_SHIFT = 0x10;
     public const ushort VK_LSHIFT = 0xA0;
+    public const ushort VK_LCONTROL = 0xA2;
     public const ushort VK_ESCAPE = 0x1B;
     public const ushort VK_F6 = 0x75;
     public const ushort VK_F8 = 0x77;

@@ -58,6 +58,7 @@ public static class ConfigService
         public int ColumnLength { get; set; } = 2;
         public int ColumnLayers { get; set; } = 10;
         public string HomeName { get; set; } = "mine";
+        public ColumnMoveMode ColumnMovement { get; set; } = ColumnMoveMode.Walk;
 
         // Full Auto
         public bool PlayerSafetyEnabled { get; set; } = true;

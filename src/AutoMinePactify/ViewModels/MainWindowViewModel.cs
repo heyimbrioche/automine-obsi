@@ -44,15 +44,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private SettingsViewModel _settings = new();
 
-    [ObservableProperty]
-    private bool _updateAvailable;
-
-    [ObservableProperty]
-    private string _updateMessage = "";
-
-    [ObservableProperty]
-    private string _updateDownloadUrl = "";
-
     public string VersionText => $"v{Services.UpdateChecker.CurrentVersion}";
 
     public ObservableCollection<string> LogEntries { get; } = new();
@@ -194,24 +185,6 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         }
     }
 
-    [RelayCommand]
-    private void DismissUpdate()
-    {
-        UpdateAvailable = false;
-    }
-
-    /// <summary>
-    /// Affiche la notification de mise a jour.
-    /// </summary>
-    public void ShowUpdateNotification(Services.UpdateChecker.UpdateInfo info)
-    {
-        UpdateAvailable = true;
-        UpdateMessage = $"Nouvelle version {info.Version} disponible !";
-        if (!string.IsNullOrWhiteSpace(info.Changelog))
-            UpdateMessage += $"\n{info.Changelog}";
-        UpdateDownloadUrl = info.DownloadUrl;
-        AddLog($"MISE A JOUR : version {info.Version} disponible !");
-    }
 
     // ─── Helpers ────────────────────────────────────────────────────
 

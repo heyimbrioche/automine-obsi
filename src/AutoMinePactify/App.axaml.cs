@@ -22,7 +22,7 @@ public partial class App : Application
             desktop.MainWindow = splash;
             splash.Show();
 
-            // Lancer l'animation puis ouvrir la fenetre principale
+            // Lancer l'animation puis verifier les mises a jour
             Task.Run(async () =>
             {
                 await splash.RunLoadingAnimation();
@@ -30,14 +30,18 @@ public partial class App : Application
 
                 await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    var vm = new MainWindowViewModel();
-
-                    // Notifier si une mise a jour est disponible
+                    // Si une mise a jour est dispo, bloquer le programme
                     if (updateResult?.UpdateAvailable == true && updateResult.Info != null)
                     {
-                        vm.ShowUpdateNotification(updateResult.Info);
+                        var updateWindow = new UpdateRequiredWindow(updateResult.Info);
+                        desktop.MainWindow = updateWindow;
+                        updateWindow.Show();
+                        splash.Close();
+                        return;
                     }
 
+                    // Sinon, ouvrir normalement
+                    var vm = new MainWindowViewModel();
                     var mainWindow = new MainWindow
                     {
                         DataContext = vm

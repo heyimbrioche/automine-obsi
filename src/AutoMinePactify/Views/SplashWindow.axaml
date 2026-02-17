@@ -38,19 +38,12 @@
                 </Border.Background>
             </Border>
 
-            <!-- Logo OBS -->
-            <Border Grid.Row="1"
-                    HorizontalAlignment="Center"
-                    Background="#2D1B4E"
-                    CornerRadius="14"
-                    Padding="18,12"
-                    Margin="0,0,0,14">
-                <Border.BoxShadow>0 0 30 5 #40A855F7</Border.BoxShadow>
-                <TextBlock Text="OBS"
-                           FontSize="28" FontWeight="Black"
-                           Foreground="#A855F7"
-                           HorizontalAlignment="Center"/>
-            </Border>
+            <!-- Logo -->
+            <Image Grid.Row="1"
+                   Source="/Assets/logo.png"
+                   Width="120" Height="80"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,10"/>
 
             <!-- Titre -->
             <StackPanel Grid.Row="2" HorizontalAlignment="Center" Spacing="4" Margin="0,0,0,20">

@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMinePactify.Helpers;
+using AutoMinePactify.Models;
 
 namespace AutoMinePactify.Services;
 
@@ -153,6 +154,107 @@ public class InputSimulator
     public async Task Jump(CancellationToken ct = default)
     {
         await KeyPress(NativeMethods.VK_SPACE, 80, ct);
+    }
+
+    // ─── Movement with mode (walk/sprint/sneak) ─────────────────────
+
+    /// <summary>
+    /// Retourne le nombre de millisecondes pour parcourir 1 bloc selon le mode.
+    /// Marche ~232ms, Sprint ~178ms, Accroupi ~772ms.
+    /// </summary>
+    public static int MsPerBlock(ColumnMoveMode mode) => mode switch
+    {
+        ColumnMoveMode.Walk => 232,
+        ColumnMoveMode.Sprint => 178,
+        ColumnMoveMode.Sneak => 772,
+        _ => 232
+    };
+
+    /// <summary>
+    /// Recule de <paramref name="blocks"/> blocs en maintenant le mode de deplacement.
+    /// Sprint = Ctrl enfonce, Sneak = Shift enfonce, Walk = rien de plus.
+    /// </summary>
+    public async Task MoveBackwardWithMode(int blocks, ColumnMoveMode mode, CancellationToken ct)
+    {
+        if (blocks <= 0) return;
+        int totalMs = blocks * MsPerBlock(mode);
+
+        // Appuyer sur la touche modificatrice si besoin
+        if (mode == ColumnMoveMode.Sprint)
+            await KeyDown(NativeMethods.VK_LCONTROL, ct);
+        else if (mode == ColumnMoveMode.Sneak)
+            await KeyDown(NativeMethods.VK_LSHIFT, ct);
+
+        try
+        {
+            await KeyDown(NativeMethods.VK_S, ct);
+            await Pause(totalMs, ct);
+            await KeyUp(NativeMethods.VK_S, ct);
+        }
+        finally
+        {
+            // Relacher la touche modificatrice
+            if (mode == ColumnMoveMode.Sprint)
+                await KeyUp(NativeMethods.VK_LCONTROL, ct);
+            else if (mode == ColumnMoveMode.Sneak)
+                await KeyUp(NativeMethods.VK_LSHIFT, ct);
+        }
+    }
+
+    /// <summary>
+    /// Strafe gauche de <paramref name="blocks"/> blocs avec le mode de deplacement.
+    /// </summary>
+    public async Task MoveLeftWithMode(int blocks, ColumnMoveMode mode, CancellationToken ct)
+    {
+        if (blocks <= 0) return;
+        int totalMs = blocks * MsPerBlock(mode);
+
+        if (mode == ColumnMoveMode.Sprint)
+            await KeyDown(NativeMethods.VK_LCONTROL, ct);
+        else if (mode == ColumnMoveMode.Sneak)
+            await KeyDown(NativeMethods.VK_LSHIFT, ct);
+
+        try
+        {
+            await KeyDown(NativeMethods.VK_A, ct);
+            await Pause(totalMs, ct);
+            await KeyUp(NativeMethods.VK_A, ct);
+        }
+        finally
+        {
+            if (mode == ColumnMoveMode.Sprint)
+                await KeyUp(NativeMethods.VK_LCONTROL, ct);
+            else if (mode == ColumnMoveMode.Sneak)
+                await KeyUp(NativeMethods.VK_LSHIFT, ct);
+        }
+    }
+
+    /// <summary>
+    /// Strafe droite de <paramref name="blocks"/> blocs avec le mode de deplacement.
+    /// </summary>
+    public async Task MoveRightWithMode(int blocks, ColumnMoveMode mode, CancellationToken ct)
+    {
+        if (blocks <= 0) return;
+        int totalMs = blocks * MsPerBlock(mode);
+
+        if (mode == ColumnMoveMode.Sprint)
+            await KeyDown(NativeMethods.VK_LCONTROL, ct);
+        else if (mode == ColumnMoveMode.Sneak)
+            await KeyDown(NativeMethods.VK_LSHIFT, ct);
+
+        try
+        {
+            await KeyDown(NativeMethods.VK_D, ct);
+            await Pause(totalMs, ct);
+            await KeyUp(NativeMethods.VK_D, ct);
+        }
+        finally
+        {
+            if (mode == ColumnMoveMode.Sprint)
+                await KeyUp(NativeMethods.VK_LCONTROL, ct);
+            else if (mode == ColumnMoveMode.Sneak)
+                await KeyUp(NativeMethods.VK_LSHIFT, ct);
+        }
     }
 
     // ─── Camera / look ──────────────────────────────────────────────
@@ -307,7 +409,8 @@ public class InputSimulator
         ushort[] keys =
         {
             NativeMethods.VK_W, NativeMethods.VK_A, NativeMethods.VK_S,
-            NativeMethods.VK_D, NativeMethods.VK_SPACE, NativeMethods.VK_LSHIFT
+            NativeMethods.VK_D, NativeMethods.VK_SPACE, NativeMethods.VK_LSHIFT,
+            NativeMethods.VK_LCONTROL
         };
 
         foreach (var key in keys)
