@@ -29,16 +29,14 @@ public class LicenseResult
 }
 
 /// <summary>
-/// Handles license validation via KeyAuth and local encrypted caching.
-///
-/// BEFORE BUILDING: replace the 4 constants below with your real KeyAuth app credentials.
-/// You get them from https://keyauth.cc/app/ after creating an application.
+/// Gere la validation de licence via KeyAuth et le cache local chiffre.
+/// HWID genere via le registre Windows (pas de System.Management).
 /// </summary>
 [SupportedOSPlatform("windows")]
 public class LicenseService : IDisposable
 {
     // ──────────────────────────────────────────────────────────────────
-    //  KeyAuth credentials – FILL THESE IN from your KeyAuth dashboard
+    //  KeyAuth credentials
     // ──────────────────────────────────────────────────────────────────
     private const string KA_APP_NAME = "Dialogue's Application";
     private const string KA_OWNER_ID = "Pk1DZEyxn4";
@@ -65,7 +63,7 @@ public class LicenseService : IDisposable
     }
 
     /// <summary>
-    /// Try to validate a previously cached license key without user interaction.
+    /// Tente de valider une licence en cache sans interaction utilisateur.
     /// </summary>
     public async Task<LicenseResult> ValidateCachedAsync()
     {
@@ -77,7 +75,7 @@ public class LicenseService : IDisposable
     }
 
     /// <summary>
-    /// Validate a license key against KeyAuth (init session + license check).
+    /// Valide une cle de licence aupres de KeyAuth (init session + license check).
     /// </summary>
     public async Task<LicenseResult> ValidateAsync(string key)
     {
@@ -155,7 +153,8 @@ public class LicenseService : IDisposable
     }
 
     /// <summary>
-    /// Start periodic background revalidation (every 2 hours).
+    /// Demarre la revalidation periodique en arriere-plan (toutes les 2h).
+    /// Si la licence devient invalide, le programme se ferme.
     /// </summary>
     public void StartPeriodicCheck()
     {
@@ -172,6 +171,7 @@ public class LicenseService : IDisposable
         }, null, TimeSpan.FromHours(2), TimeSpan.FromHours(2));
     }
 
+    /// <summary>Supprime le cache local de licence.</summary>
     public void ClearCache()
     {
         try { if (File.Exists(CachePath)) File.Delete(CachePath); } catch { }
@@ -208,7 +208,7 @@ public class LicenseService : IDisposable
         return (false, $"Erreur KeyAuth : {message}");
     }
 
-    // ─── Encrypted local cache ───────────────────────────────────────
+    // ─── Cache local chiffre AES ─────────────────────────────────────
 
     private void SaveCachedKey(string key)
     {

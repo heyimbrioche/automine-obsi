@@ -64,6 +64,7 @@ public partial class SplashWindow : Window
 
             if (step == 1)
             {
+                // Verifier la licence en cache
                 try
                 {
                     LicenseCheckResult = await _licenseService.ValidateCachedAsync();
@@ -80,6 +81,7 @@ public partial class SplashWindow : Window
             }
             else if (step == 3)
             {
+                // Verifier les mises a jour
                 try
                 {
                     UpdateResult = await UpdateChecker.CheckForUpdate();

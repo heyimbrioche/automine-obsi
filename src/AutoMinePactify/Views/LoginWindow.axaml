@@ -124,7 +124,13 @@
         </Grid>
 
         <!-- Bordure subtile -->
-        <Border.Effect>
-        </Border.Effect>
+        <Border.BorderBrush>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#30A855F7" Offset="0"/>
+                <GradientStop Color="#10A855F7" Offset="0.5"/>
+                <GradientStop Color="#30A855F7" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.BorderBrush>
+        <Border.BorderThickness>1</Border.BorderThickness>
     </Border>
 </Window>

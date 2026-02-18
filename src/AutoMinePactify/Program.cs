@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Avalonia;
@@ -13,9 +12,6 @@ class Program
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern int MessageBox(IntPtr hWnd, string text, string caption, uint type);
 
-    [DllImport("kernel32.dll")]
-    private static extern bool IsDebuggerPresent();
-
     private const uint MB_OK = 0x00000000;
     private const uint MB_ICONERROR = 0x00000010;
 
@@ -24,20 +20,20 @@ class Program
     {
         try
         {
-            if (Debugger.IsAttached || IsDebuggerPresent())
+            // ── Protection anti-debug ──
+            if (!IntegrityChecker.IsClean())
             {
+                // Un debugger est detecte, on ferme silencieusement
                 Environment.Exit(0);
             }
 
-            if (!AdminHelper.IsRunAsAdmin())
-            {
-                MessageBox(IntPtr.Zero,
-                    "Ce programme a besoin des droits Administrateur pour fonctionner !\n\nFais clic droit sur le .exe puis \"Exécuter en tant qu'administrateur\".",
-                    "AutoMine Obsidienne - Il faut lancer en admin",
-                    MB_OK | MB_ICONERROR);
-                Environment.Exit(1);
-            }
+            // Masquer le thread principal des debuggers
+            IntegrityChecker.HideFromDebugger();
 
+            // Lancer la verification periodique anti-debug en background
+            IntegrityChecker.StartPeriodicCheck();
+
+            // ── Lancement normal ──
             BuildAvaloniaApp()
                 .StartWithClassicDesktopLifetime(args);
         }

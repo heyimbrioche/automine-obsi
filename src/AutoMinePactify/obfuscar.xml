@@ -1,0 +1,19 @@
+<?xml version='1.0'?>
+<Obfuscator>
+  <Var name="InPath" value="bin\Release\net8.0\win-x64" />
+  <Var name="OutPath" value="bin\Obfuscated" />
+
+  <!-- Ne PAS renommer les types/methodes/proprietes (casse Avalonia XAML) -->
+  <Var name="KeepPublicApi" value="true" />
+  <Var name="HidePrivateApi" value="false" />
+  <Var name="RenameProperties" value="false" />
+  <Var name="RenameEvents" value="false" />
+  <Var name="RenameFields" value="false" />
+
+  <!-- CHIFFRER les strings (protege les credentials KeyAuth, URLs, cles) -->
+  <Var name="HideStrings" value="true" />
+
+  <Var name="OptimizeMethods" value="false" />
+
+  <Module file="$(InPath)\AutoMinePactify.dll" />
+</Obfuscator>

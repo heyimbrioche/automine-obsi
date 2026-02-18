@@ -1,11 +1,15 @@
 using System;
-using System.Management;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Win32;
 
 namespace AutoMinePactify.Helpers;
 
+/// <summary>
+/// Genere un identifiant materiel unique (HWID) base sur le registre Windows.
+/// Pas besoin de System.Management / WMI.
+/// </summary>
 [SupportedOSPlatform("windows")]
 public static class HwidGenerator
 {
@@ -17,43 +21,38 @@ public static class HwidGenerator
 
         try
         {
-            string raw = string.Join("|",
-                GetWmiValue("Win32_Processor", "ProcessorId"),
-                GetWmiValue("Win32_BaseBoard", "SerialNumber"),
-                GetWmiValue("Win32_DiskDrive", "SerialNumber"));
+            string machineGuid = GetMachineGuid();
+            string machineName = Environment.MachineName;
+            int cpuCount = Environment.ProcessorCount;
+            string userName = Environment.UserName;
 
-            if (string.IsNullOrWhiteSpace(raw) || raw == "||")
-                raw = FallbackId();
-
+            string raw = $"{machineGuid}|{machineName}|{cpuCount}|{userName}";
             _cached = HashSha256(raw);
         }
         catch
         {
-            _cached = HashSha256(FallbackId());
+            // Fallback si le registre est inaccessible
+            string fallback = $"{Environment.MachineName}|{Environment.UserName}|{Environment.ProcessorCount}";
+            _cached = HashSha256(fallback);
         }
 
         return _cached;
     }
 
-    private static string GetWmiValue(string wmiClass, string property)
+    private static string GetMachineGuid()
     {
         try
         {
-            using var searcher = new ManagementObjectSearcher($"SELECT {property} FROM {wmiClass}");
-            foreach (var obj in searcher.Get())
-            {
-                string? val = obj[property]?.ToString()?.Trim();
-                if (!string.IsNullOrWhiteSpace(val) && val != "To Be Filled By O.E.M.")
-                    return val;
-            }
+            object? val = Registry.GetValue(
+                @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography",
+                "MachineGuid", null);
+
+            if (val is string guid && !string.IsNullOrWhiteSpace(guid))
+                return guid;
         }
         catch { }
-        return "";
-    }
 
-    private static string FallbackId()
-    {
-        return $"{Environment.MachineName}|{Environment.UserName}|{Environment.ProcessorCount}";
+        return "fallback-no-guid";
     }
 
     private static string HashSha256(string input)
