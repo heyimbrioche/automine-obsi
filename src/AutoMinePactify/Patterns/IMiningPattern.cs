@@ -26,6 +26,7 @@ public interface IMiningPattern
     /// <param name="log">Callback to log messages to the UI.</param>
     /// <param name="onProgress">Callback to report progress (blocks mined).</param>
     /// <param name="safetyCheck">Callback that returns false if mining should stop (MC lost focus, etc.).</param>
+    /// <param name="pauseToken">Token de pause : appeler WaitIfPausedAsync pour bloquer si en pause.</param>
     /// <param name="ct">Cancellation token to stop mining.</param>
     Task ExecuteAsync(
         InputSimulator input,
@@ -33,5 +34,6 @@ public interface IMiningPattern
         Action<string> log,
         Action<int> onProgress,
         Func<bool> safetyCheck,
+        PauseToken pauseToken,
         CancellationToken ct);
 }

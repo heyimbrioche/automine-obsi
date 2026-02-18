@@ -17,6 +17,7 @@ public class AutoClickPattern : IMiningPattern
         Action<string> log,
         Action<int> onProgress,
         Func<bool> safetyCheck,
+        PauseToken pauseToken,
         CancellationToken ct)
     {
         log($"Auto-Clic : {config.BlockCount} blocs a casser");
@@ -29,6 +30,7 @@ public class AutoClickPattern : IMiningPattern
         for (int i = 0; i < config.BlockCount; i++)
         {
             ct.ThrowIfCancellationRequested();
+            await pauseToken.WaitIfPausedAsync(ct);
 
             if (!safetyCheck())
             {

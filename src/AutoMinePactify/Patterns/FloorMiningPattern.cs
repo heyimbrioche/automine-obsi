@@ -17,6 +17,7 @@ public class FloorMiningPattern : IMiningPattern
         Action<string> log,
         Action<int> onProgress,
         Func<bool> safetyCheck,
+        PauseToken pauseToken,
         CancellationToken ct)
     {
         int width = config.FloorWidth;
@@ -47,6 +48,7 @@ public class FloorMiningPattern : IMiningPattern
             for (int col = 0; col < depth; col++)
             {
                 ct.ThrowIfCancellationRequested();
+                await pauseToken.WaitIfPausedAsync(ct);
 
                 if (!safetyCheck())
                 {

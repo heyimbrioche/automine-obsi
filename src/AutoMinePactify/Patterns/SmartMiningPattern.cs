@@ -45,6 +45,7 @@ public class SmartMiningPattern : IMiningPattern
         Action<string> log,
         Action<int> onProgress,
         Func<bool> safetyCheck,
+        PauseToken pauseToken,
         CancellationToken ct)
     {
         log("Mode Full Auto lance !");
@@ -62,6 +63,7 @@ public class SmartMiningPattern : IMiningPattern
         while (!ct.IsCancellationRequested)
         {
             ct.ThrowIfCancellationRequested();
+            await pauseToken.WaitIfPausedAsync(ct);
 
             if (!safetyCheck())
             {

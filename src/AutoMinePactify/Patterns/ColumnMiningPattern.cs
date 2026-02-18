@@ -36,6 +36,7 @@ public class ColumnMiningPattern : IMiningPattern
         Action<string> log,
         Action<int> onProgress,
         Func<bool> safetyCheck,
+        PauseToken pauseToken,
         CancellationToken ct)
     {
         int width = Math.Max(1, config.ColumnWidth);
@@ -65,12 +66,14 @@ public class ColumnMiningPattern : IMiningPattern
         for (int w = 0; w < width; w++)
         {
             ct.ThrowIfCancellationRequested();
+            await pauseToken.WaitIfPausedAsync(ct);
             log($"=== Bande {w + 1}/{width} ===");
 
             // ── Miner les positions l = length-1 (loin) jusqu'a l = 1 (proche) ──
             for (int l = length - 1; l >= 1; l--)
             {
                 ct.ThrowIfCancellationRequested();
+                await pauseToken.WaitIfPausedAsync(ct);
 
                 if (!safetyCheck())
                 {
@@ -81,7 +84,7 @@ public class ColumnMiningPattern : IMiningPattern
                 // 1. /home pour revenir au point de depart
                 log($"  /home -> retour au depart");
                 await input.TypeChatCommand(homeCmd, ct);
-                await Task.Delay(2000, ct); // attendre la teleportation
+                await Task.Delay(5300, ct); // attendre la teleportation (5s + marge sur Pactify)
 
                 // 2. Prendre la pioche
                 await input.SelectSlot(config.PickaxeSlot, ct);
@@ -94,7 +97,7 @@ public class ColumnMiningPattern : IMiningPattern
 
                 // 4. Miner D blocs vers le bas (le joueur tombe a chaque bloc)
                 log($"  Minage de {depth} blocs en profondeur (pos {l})...");
-                blocksMined = await MineDepthColumn(input, config, depth, blocksMined, totalBlocks, log, onProgress, ct);
+                blocksMined = await MineDepthColumn(input, config, depth, blocksMined, totalBlocks, log, onProgress, pauseToken, ct);
 
                 log($"  Position ({w},{l}) terminee ! [{blocksMined}/{totalBlocks}]");
             }
@@ -104,6 +107,7 @@ public class ColumnMiningPattern : IMiningPattern
             {
                 // Pas la derniere bande : decaler le home a gauche avant de miner l=0
                 ct.ThrowIfCancellationRequested();
+                await pauseToken.WaitIfPausedAsync(ct);
 
                 if (!safetyCheck())
                 {
@@ -114,7 +118,7 @@ public class ColumnMiningPattern : IMiningPattern
                 // /home pour revenir au point de depart
                 log($"  /home -> retour au depart pour decalage");
                 await input.TypeChatCommand(homeCmd, ct);
-                await Task.Delay(2000, ct);
+                await Task.Delay(5300, ct); // attendre la teleportation (5s + marge sur Pactify)
 
                 await input.SelectSlot(config.PickaxeSlot, ct);
                 await Task.Delay(200, ct);
@@ -140,7 +144,7 @@ public class ColumnMiningPattern : IMiningPattern
 
                 // Miner D blocs vers le bas a l'ancien home
                 log($"  Minage de {depth} blocs a l'ancien home (pos 0)...");
-                blocksMined = await MineDepthColumn(input, config, depth, blocksMined, totalBlocks, log, onProgress, ct);
+                blocksMined = await MineDepthColumn(input, config, depth, blocksMined, totalBlocks, log, onProgress, pauseToken, ct);
 
                 log($"  Position ({w},0) terminee ! [{blocksMined}/{totalBlocks}]");
             }
@@ -148,6 +152,7 @@ public class ColumnMiningPattern : IMiningPattern
             {
                 // Derniere bande : miner la position home directement
                 ct.ThrowIfCancellationRequested();
+                await pauseToken.WaitIfPausedAsync(ct);
 
                 if (!safetyCheck())
                 {
@@ -158,14 +163,14 @@ public class ColumnMiningPattern : IMiningPattern
                 // /home pour revenir
                 log($"  /home -> retour au depart (derniere position)");
                 await input.TypeChatCommand(homeCmd, ct);
-                await Task.Delay(2000, ct);
+                await Task.Delay(5300, ct); // attendre la teleportation (5s + marge sur Pactify)
 
                 await input.SelectSlot(config.PickaxeSlot, ct);
                 await Task.Delay(200, ct);
 
                 // Miner directement sous soi
                 log($"  Minage de {depth} blocs au home (derniere position)...");
-                blocksMined = await MineDepthColumn(input, config, depth, blocksMined, totalBlocks, log, onProgress, ct);
+                blocksMined = await MineDepthColumn(input, config, depth, blocksMined, totalBlocks, log, onProgress, pauseToken, ct);
 
                 log($"  Position ({w},0) terminee ! [{blocksMined}/{totalBlocks}]");
             }
@@ -186,11 +191,13 @@ public class ColumnMiningPattern : IMiningPattern
         int totalBlocks,
         Action<string> log,
         Action<int> onProgress,
+        PauseToken pauseToken,
         CancellationToken ct)
     {
         for (int d = 0; d < depth; d++)
         {
             ct.ThrowIfCancellationRequested();
+            await pauseToken.WaitIfPausedAsync(ct);
 
             blocksMined++;
 

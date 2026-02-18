@@ -323,32 +323,101 @@ public class InputSimulator
 
     /// <summary>
     /// Envoie une commande dans le chat Minecraft (ex: "/home mine").
-    /// Ouvre le chat avec '/', tape la commande, et appuie sur Enter.
+    /// Ouvre le chat avec T, tape la commande entiere, et appuie sur Enter.
     /// </summary>
     public async Task TypeChatCommand(string command, CancellationToken ct = default)
     {
-        // Si la commande commence par /, on ouvre le chat avec / directement
-        // Sinon on ouvre avec T
-        if (command.StartsWith("/"))
+        // Toujours ouvrir le chat avec T (VK reel, compatible Minecraft/LWJGL)
+        await KeyPress(NativeMethods.VK_T, 60, ct);
+        await Pause(400, ct); // laisser le chat s'ouvrir
+
+        // Taper la commande entiere (y compris le / si present)
+        await TypeString(command, ct);
+        await Pause(150, ct);
+
+        // Appuyer sur Enter avec VK + scan code pour compatibilite maximale
+        await PressEnter(ct);
+        await Pause(200, ct);
+    }
+
+    /// <summary>
+    /// Version rapide de TypeChatCommand pour les commandes rapides (hotkey).
+    /// La vitesse depend du niveau choisi par l'utilisateur.
+    /// </summary>
+    public async Task TypeChatCommandFast(string command, QuickCommandSpeed speed = QuickCommandSpeed.Fast, CancellationToken ct = default)
+    {
+        var (chatOpenMs, charDelayMs, preEnterMs, postEnterMs, keyPressMs) = SpeedProfile(speed);
+
+        // Ouvrir le chat avec T
+        await KeyPress(NativeMethods.VK_T, keyPressMs, ct);
+        await Task.Delay(chatOpenMs, ct);
+
+        // Taper la commande
+        foreach (char c in command)
         {
-            // Appuyer sur / ouvre le chat avec / deja ecrit en 1.8.8
-            await TypeUnicodeChar('/', ct);
-            await Pause(300, ct);
-            // Taper le reste (sans le /)
-            await TypeString(command.Substring(1), ct);
-        }
-        else
-        {
-            await KeyPress(0x54, 50, ct); // VK_T pour ouvrir le chat
-            await Pause(300, ct);
-            await TypeString(command, ct);
+            await TypeUnicodeChar(c, ct);
+            if (charDelayMs > 0) await Task.Delay(charDelayMs, ct);
         }
 
-        await Pause(100, ct);
+        if (preEnterMs > 0) await Task.Delay(preEnterMs, ct);
 
-        // Appuyer sur Enter pour envoyer
-        await KeyPress(0x0D, 50, ct); // VK_RETURN
-        await Pause(100, ct);
+        // Appuyer sur Enter
+        await PressEnter(ct);
+
+        if (postEnterMs > 0) await Task.Delay(postEnterMs, ct);
+    }
+
+    /// <summary>
+    /// Retourne les delais (en ms) pour chaque niveau de vitesse.
+    /// (chatOpen, charDelay, preEnter, postEnter, keyPress)
+    /// </summary>
+    private static (int chatOpen, int charDelay, int preEnter, int postEnter, int keyPress) SpeedProfile(QuickCommandSpeed speed) => speed switch
+    {
+        QuickCommandSpeed.Slow   => (250, 20, 80, 100, 60),
+        QuickCommandSpeed.Normal => (150, 10, 40, 60, 40),
+        QuickCommandSpeed.Fast   => (80, 4, 15, 25, 30),
+        QuickCommandSpeed.Ultra  => (40, 1, 5, 10, 20),
+        _ => (150, 10, 40, 60, 40)
+    };
+
+    /// <summary>
+    /// Appuie sur Enter de facon robuste (VK + scan code).
+    /// </summary>
+    private async Task PressEnter(CancellationToken ct)
+    {
+        ushort scanCode = (ushort)NativeMethods.MapVirtualKeyW(NativeMethods.VK_RETURN, NativeMethods.MAPVK_VK_TO_VSC);
+
+        var down = new NativeMethods.INPUT
+        {
+            type = NativeMethods.INPUT_KEYBOARD,
+            u = new NativeMethods.InputUnion
+            {
+                ki = new NativeMethods.KEYBDINPUT
+                {
+                    wVk = NativeMethods.VK_RETURN,
+                    wScan = scanCode,
+                    dwFlags = NativeMethods.KEYEVENTF_KEYDOWN
+                }
+            }
+        };
+        NativeMethods.SendInput(1, new[] { down }, Marshal.SizeOf<NativeMethods.INPUT>());
+        await Pause(80, ct);
+
+        var up = new NativeMethods.INPUT
+        {
+            type = NativeMethods.INPUT_KEYBOARD,
+            u = new NativeMethods.InputUnion
+            {
+                ki = new NativeMethods.KEYBDINPUT
+                {
+                    wVk = NativeMethods.VK_RETURN,
+                    wScan = scanCode,
+                    dwFlags = NativeMethods.KEYEVENTF_KEYUP
+                }
+            }
+        };
+        NativeMethods.SendInput(1, new[] { up }, Marshal.SizeOf<NativeMethods.INPUT>());
+        await Pause(30, ct);
     }
 
     /// <summary>
@@ -429,6 +498,9 @@ public class InputSimulator
 
     private static NativeMethods.INPUT CreateKeyInput(ushort vkCode, uint flags)
     {
+        // Toujours inclure le scan code pour compatibilite avec Minecraft/LWJGL
+        // qui lit les scan codes hardware et pas les virtual key codes
+        ushort scanCode = (ushort)NativeMethods.MapVirtualKeyW(vkCode, NativeMethods.MAPVK_VK_TO_VSC);
         return new NativeMethods.INPUT
         {
             type = NativeMethods.INPUT_KEYBOARD,
@@ -437,6 +509,7 @@ public class InputSimulator
                 ki = new NativeMethods.KEYBDINPUT
                 {
                     wVk = vkCode,
+                    wScan = scanCode,
                     dwFlags = flags
                 }
             }

@@ -1,0 +1,337 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AutoMinePactify.ViewModels"
+             x:Class="AutoMinePactify.Views.QuickCommandsView"
+             x:DataType="vm:QuickCommandsViewModel">
+
+    <UserControl.Styles>
+        <!-- Card style -->
+        <Style Selector="Border.cmdCard">
+            <Setter Property="Background" Value="#222438"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="14"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- Bouton preset compact -->
+        <Style Selector="Button.speedBtn">
+            <Setter Property="Background" Value="#2D2F45"/>
+            <Setter Property="Foreground" Value="#9CA0B4"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="MinWidth" Value="50"/>
+        </Style>
+        <Style Selector="Button.speedBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#A855F7"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+        </Style>
+
+        <Style Selector="Button.speedBtnActive">
+            <Setter Property="Background" Value="#A855F7"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="MinWidth" Value="50"/>
+        </Style>
+
+        <!-- Bouton add -->
+        <Style Selector="Button.addBtn">
+            <Setter Property="Background" Value="#1F2937"/>
+            <Setter Property="Foreground" Value="#A855F7"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderBrush" Value="#A855F7"/>
+        </Style>
+        <Style Selector="Button.addBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#A855F7"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+        </Style>
+
+        <!-- Bouton delete -->
+        <Style Selector="Button.deleteBtn">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#EF4444"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="6,2"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+        <Style Selector="Button.deleteBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#3B1111"/>
+            <Setter Property="Foreground" Value="#FF6B6B"/>
+        </Style>
+
+        <!-- Log list -->
+        <Style Selector="ListBox.logList">
+            <Setter Property="Background" Value="#181926"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="4"/>
+        </Style>
+        <Style Selector="ListBox.logList ListBoxItem">
+            <Setter Property="Padding" Value="6,2"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#8B8FA3"/>
+            <Setter Property="FontFamily" Value="Consolas, Courier New, monospace"/>
+        </Style>
+
+        <!-- Scrollbar fine -->
+        <Style Selector="ScrollViewer /template/ ScrollBar">
+            <Setter Property="Width" Value="8"/>
+        </Style>
+        <Style Selector="ScrollViewer /template/ ScrollBar /template/ Thumb">
+            <Setter Property="Background" Value="#3D2F55"/>
+            <Setter Property="MinHeight" Value="30"/>
+        </Style>
+        <Style Selector="ScrollViewer /template/ ScrollBar /template/ Thumb:pointerover">
+            <Setter Property="Background" Value="#A855F7"/>
+        </Style>
+        <Style Selector="ScrollViewer /template/ ScrollBar /template/ RepeatButton">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="380"/>
+            <ColumnDefinition Width="14"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ══ GAUCHE : Liste des commandes ═══════════════════════ -->
+        <Border Grid.Column="0" Background="#222438" CornerRadius="10" Padding="14">
+            <Grid RowDefinitions="Auto,8,*,8,Auto">
+
+                <!-- Titre + toggle global -->
+                <StackPanel Grid.Row="0" Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="⚡" FontSize="16" VerticalAlignment="Center"/>
+                        <TextBlock Text="COMMANDES RAPIDES"
+                                   FontWeight="Bold" FontSize="14"
+                                   Foreground="#A855F7"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <TextBlock Text="Chaque commande a sa propre touche. Appuie dessus dans Minecraft pour l'executer."
+                               FontSize="11" Foreground="#6B7080" TextWrapping="Wrap"/>
+
+                    <CheckBox Content="Activer les commandes rapides"
+                              IsChecked="{Binding GlobalEnabled}"
+                              FontSize="12" Foreground="#C0C4D6"/>
+                </StackPanel>
+
+                <!-- Liste scrollable -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="0">
+                        <ItemsControl ItemsSource="{Binding Commands}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:QuickCommandItemViewModel">
+                                    <Border Classes="cmdCard">
+                                        <StackPanel Spacing="8">
+
+                                            <!-- Ligne 1 : Nom + Actif + Supprimer -->
+                                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                                <TextBox Grid.Column="0"
+                                                         Text="{Binding Name}"
+                                                         FontSize="13" FontWeight="SemiBold"
+                                                         Background="Transparent"
+                                                         BorderThickness="0"
+                                                         Foreground="#E8EAF0"
+                                                         Padding="0"/>
+
+                                                <CheckBox Grid.Column="1"
+                                                          IsChecked="{Binding Enabled}"
+                                                          Content="Actif"
+                                                          FontSize="10"
+                                                          Foreground="#9CA0B4"
+                                                          Margin="8,0"/>
+
+                                                <Button Grid.Column="2"
+                                                        Classes="deleteBtn"
+                                                        Content="✕"
+                                                        Command="{Binding $parent[ItemsControl].((vm:QuickCommandsViewModel)DataContext).RemoveCommandCommand}"
+                                                        CommandParameter="{Binding}"/>
+                                            </Grid>
+
+                                            <!-- Ligne 2 : Touche + Commande -->
+                                            <Grid ColumnDefinitions="100,8,*">
+                                                <StackPanel Grid.Column="0" Spacing="2">
+                                                    <TextBlock Text="Touche" FontSize="10" Foreground="#6B7080"/>
+                                                    <TextBox Text="{Binding Key}"
+                                                             Watermark="F7"
+                                                             FontSize="11"
+                                                             Height="30"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2" Spacing="2">
+                                                    <TextBlock Text="Commande" FontSize="10" Foreground="#6B7080"/>
+                                                    <TextBox Text="{Binding Command}"
+                                                             Watermark="/feed"
+                                                             FontSize="11"
+                                                             Height="30"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <!-- Ligne 3 : Vitesse -->
+                                            <StackPanel Spacing="3">
+                                                <TextBlock Text="Vitesse" FontSize="10" Foreground="#6B7080"/>
+                                                <Grid ColumnDefinitions="*,3,*,3,*,3,*">
+                                                    <Grid Grid.Column="0">
+                                                        <Button Classes="speedBtn" IsVisible="{Binding !IsSpeedSlow}"
+                                                                Command="{Binding SetSpeedCommand}" CommandParameter="0"
+                                                                Content="Lent"/>
+                                                        <Button Classes="speedBtnActive" IsVisible="{Binding IsSpeedSlow}"
+                                                                Command="{Binding SetSpeedCommand}" CommandParameter="0"
+                                                                Content="Lent"/>
+                                                    </Grid>
+                                                    <Grid Grid.Column="2">
+                                                        <Button Classes="speedBtn" IsVisible="{Binding !IsSpeedNormal}"
+                                                                Command="{Binding SetSpeedCommand}" CommandParameter="1"
+                                                                Content="Normal"/>
+                                                        <Button Classes="speedBtnActive" IsVisible="{Binding IsSpeedNormal}"
+                                                                Command="{Binding SetSpeedCommand}" CommandParameter="1"
+                                                                Content="Normal"/>
+                                                    </Grid>
+                                                    <Grid Grid.Column="4">
+                                                        <Button Classes="speedBtn" IsVisible="{Binding !IsSpeedFast}"
+                                                                Command="{Binding SetSpeedCommand}" CommandParameter="2"
+                                                                Content="Rapide"/>
+                                                        <Button Classes="speedBtnActive" IsVisible="{Binding IsSpeedFast}"
+                                                                Command="{Binding SetSpeedCommand}" CommandParameter="2"
+                                                                Content="Rapide"/>
+                                                    </Grid>
+                                                    <Grid Grid.Column="6">
+                                                        <Button Classes="speedBtn" IsVisible="{Binding !IsSpeedUltra}"
+                                                                Command="{Binding SetSpeedCommand}" CommandParameter="3"
+                                                                Content="Ultra"/>
+                                                        <Button Classes="speedBtnActive" IsVisible="{Binding IsSpeedUltra}"
+                                                                Command="{Binding SetSpeedCommand}" CommandParameter="3"
+                                                                Content="Ultra"/>
+                                                    </Grid>
+                                                </Grid>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Bouton Ajouter -->
+                <Button Grid.Row="4"
+                        Classes="addBtn"
+                        Content="+ Ajouter une commande"
+                        Command="{Binding AddCommandCommand}"/>
+            </Grid>
+        </Border>
+
+        <!-- ══ DROITE : Status + Log ══════════════════════════════ -->
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Status -->
+            <Border Grid.Row="0" Background="#222438" CornerRadius="10" Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="STATUS"
+                               FontWeight="Bold" FontSize="13"
+                               Foreground="#8B8FA3"/>
+
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="{Binding StatusText}"
+                                       FontSize="16" FontWeight="SemiBold"
+                                       Foreground="#E8EAF0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="{Binding ExecutionCount}"
+                                       FontSize="18" FontWeight="Bold" Foreground="#A855F7"/>
+                            <TextBlock Text="executions"
+                                       FontSize="12" Foreground="#6B7080"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Indicateur global -->
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <Ellipse Width="8" Height="8"
+                                 Fill="#22C55E"
+                                 IsVisible="{Binding GlobalEnabled}"/>
+                        <Ellipse Width="8" Height="8"
+                                 Fill="#EF4444"
+                                 IsVisible="{Binding !GlobalEnabled}"/>
+                        <TextBlock FontSize="11"
+                                   Foreground="#6B7080">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} commande(s) configuree(s)">
+                                    <Binding Path="Commands.Count"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Info box -->
+            <Border Grid.Row="2"
+                    Background="#1E1533" CornerRadius="10"
+                    Padding="14,12"
+                    BorderBrush="#3B2667" BorderThickness="1">
+                <StackPanel Spacing="6">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="💡" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Text="COMMENT CA MARCHE"
+                                   FontWeight="Bold" FontSize="12"
+                                   Foreground="#C4B5FD"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock FontSize="11" Foreground="#9B8EC4" TextWrapping="Wrap" LineHeight="17">
+1. Ajoute autant de commandes que tu veux
+2. Choisis une touche differente pour chaque
+3. Quand tu appuies sur la touche dans Minecraft, la commande s'execute
+4. Ne mets pas F6 ou F8, elles sont reservees au minage
+5. Fonctionne uniquement quand Minecraft est au premier plan
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Log -->
+            <Border Grid.Row="4" Background="#222438" CornerRadius="10" Padding="14">
+                <Grid RowDefinitions="Auto,8,*">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="LOG"
+                                   FontWeight="Bold" FontSize="13"
+                                   Foreground="#8B8FA3"/>
+                        <Button Grid.Column="1"
+                                Content="Vider"
+                                Command="{Binding ClearLogsCommand}"
+                                Background="#2D2F45" Foreground="#9CA0B4"
+                                CornerRadius="5" Padding="10,4" FontSize="11"/>
+                    </Grid>
+
+                    <ListBox Grid.Row="2"
+                             ItemsSource="{Binding LogEntries}"
+                             Classes="logList"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

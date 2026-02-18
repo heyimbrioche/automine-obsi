@@ -584,6 +584,7 @@
                       IsChecked="{Binding HumanizeDelays}"
                       FontSize="12"/>
 
+
         </StackPanel>
     </ScrollViewer>
 </UserControl>

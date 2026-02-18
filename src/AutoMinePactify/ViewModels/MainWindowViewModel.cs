@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -36,13 +37,22 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private bool _isMining;
 
     [ObservableProperty]
+    private bool _isPaused;
+
+    [ObservableProperty]
     private int _progress;
 
     [ObservableProperty]
     private int _maxProgress = 20;
 
     [ObservableProperty]
+    private int _selectedTabIndex;
+
+    [ObservableProperty]
     private SettingsViewModel _settings = new();
+
+    [ObservableProperty]
+    private QuickCommandsViewModel _quickCommands;
 
     public string VersionText => $"v{Services.UpdateChecker.CurrentVersion}";
 
@@ -57,6 +67,9 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         _safetyService = new SafetyService(_mcService, _inputSimulator);
         _engine = new MiningEngine(_inputSimulator, _mcService, _safetyService);
         _hotkeyService = new HotkeyService();
+
+        // Module commandes rapides autonome (partage les memes services)
+        _quickCommands = new QuickCommandsViewModel(_inputSimulator, _mcService);
 
         // Wire up engine events
         _engine.OnLog += msg =>
@@ -76,14 +89,15 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
         {
             Dispatcher.UIThread.InvokeAsync(() =>
             {
-                IsMining = state == EngineState.Mining;
+                IsMining = state == EngineState.Mining || state == EngineState.Paused;
+                IsPaused = state == EngineState.Paused;
                 StatusText = state switch
                 {
                     EngineState.Idle => "Pas lance",
                     EngineState.Detecting => "Recherche de Minecraft...",
                     EngineState.Ready => "Pret a miner",
                     EngineState.Mining => "En train de miner...",
-                    EngineState.Paused => "En pause",
+                    EngineState.Paused => "En pause - appuie pour reprendre",
                     EngineState.Error => "Probleme",
                     _ => "???"
                 };
@@ -98,7 +112,7 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             });
         };
 
-        // Wire up hotkeys
+        // Wire up hotkeys (F6 + F8 uniquement, commandes rapides gerees par QuickCommandsViewModel)
         _hotkeyService.OnToggleHotkey += () =>
         {
             Dispatcher.UIThread.InvokeAsync(() => ToggleMining());
@@ -109,11 +123,17 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
             Dispatcher.UIThread.InvokeAsync(() => EmergencyStop());
         };
 
-        // Start hotkey listener
+        // Start hotkey listener (F6/F8)
         _hotkeyService.Start();
 
         // Charger les settings sauvegardees
-        Settings.LoadFromDisk();
+        var savedSettings = Settings.LoadFromDisk();
+
+        // Charger les commandes rapides dans leur module autonome
+        QuickCommands.LoadFromConfig(savedSettings.QuickCommands, savedSettings.QuickCommandsGlobalEnabled);
+
+        // Demarrer l'ecoute des commandes rapides
+        QuickCommands.StartListening();
 
         AddLog("AutoMine Obsidienne pret !");
         AddLog("Appuie sur F6 pour lancer le minage.");
@@ -147,6 +167,19 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     private void StopMining()
     {
         _engine.StopMining();
+    }
+
+    [RelayCommand]
+    private void PauseResumeMining()
+    {
+        if (_engine.IsPaused)
+        {
+            _engine.ResumeMining();
+        }
+        else if (_engine.State == EngineState.Mining)
+        {
+            _engine.PauseMining();
+        }
     }
 
     [RelayCommand]
@@ -190,12 +223,19 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     private void ToggleMining()
     {
-        if (IsMining)
+        if (_engine.IsPaused)
         {
-            StopMining();
+            // Si en pause, F6 reprend
+            _engine.ResumeMining();
+        }
+        else if (_engine.State == EngineState.Mining)
+        {
+            // Si en train de miner, F6 met en pause
+            _engine.PauseMining();
         }
         else
         {
+            // Sinon, F6 lance le minage
             MaxProgress = Settings.TotalBlocks;
             Progress = 0;
             var config = Settings.ToConfig();
@@ -211,10 +251,11 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
-        // Sauvegarder les settings avant de fermer
-        Settings.SaveToDisk();
+        // Sauvegarder les settings + commandes rapides avant de fermer
+        Settings.SaveToDisk(QuickCommands.ToEntries(), QuickCommands.GlobalEnabled);
 
         _hotkeyService.Dispose();
+        QuickCommands.Dispose();
         _engine.StopMining();
         GC.SuppressFinalize(this);
     }

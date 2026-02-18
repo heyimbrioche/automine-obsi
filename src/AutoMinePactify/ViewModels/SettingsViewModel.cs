@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AutoMinePactify.Models;
@@ -8,9 +9,10 @@ namespace AutoMinePactify.ViewModels;
 public partial class SettingsViewModel : ObservableObject
 {
     /// <summary>
-    /// Charge les settings depuis le fichier JSON.
+    /// Charge les settings depuis le fichier JSON et retourne les settings brutes
+    /// (pour que MainWindowViewModel puisse aussi charger les commandes rapides).
     /// </summary>
-    public void LoadFromDisk()
+    public ConfigService.SavedSettings LoadFromDisk()
     {
         var s = ConfigService.Load();
         SelectedPattern = s.SelectedPattern;
@@ -32,12 +34,14 @@ public partial class SettingsViewModel : ObservableObject
         ColumnMovement = s.ColumnMovement;
         PlayerSafetyEnabled = s.PlayerSafetyEnabled;
         ScanRadius = s.ScanRadius;
+        return s;
     }
 
     /// <summary>
     /// Sauvegarde les settings dans le fichier JSON.
+    /// Les commandes rapides sont ajoutees par le MainWindowViewModel.
     /// </summary>
-    public void SaveToDisk()
+    public void SaveToDisk(List<QuickCommandEntry>? quickCommands = null, bool quickCommandsGlobalEnabled = true)
     {
         ConfigService.Save(new ConfigService.SavedSettings
         {
@@ -59,7 +63,9 @@ public partial class SettingsViewModel : ObservableObject
             HomeName = HomeName,
             ColumnMovement = ColumnMovement,
             PlayerSafetyEnabled = PlayerSafetyEnabled,
-            ScanRadius = ScanRadius
+            ScanRadius = ScanRadius,
+            QuickCommands = quickCommands ?? new List<QuickCommandEntry>(),
+            QuickCommandsGlobalEnabled = quickCommandsGlobalEnabled
         });
     }
 

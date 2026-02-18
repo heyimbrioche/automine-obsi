@@ -23,6 +23,21 @@ public enum ColumnMoveMode
     Sneak
 }
 
+/// <summary>
+/// Vitesse d'execution des commandes rapides (hotkey chat).
+/// </summary>
+public enum QuickCommandSpeed
+{
+    /// <summary>Lent : delais confortables, tres fiable</summary>
+    Slow,
+    /// <summary>Normal : bon equilibre vitesse/fiabilite</summary>
+    Normal,
+    /// <summary>Rapide : delais reduits</summary>
+    Fast,
+    /// <summary>Ultra : quasi instantane</summary>
+    Ultra
+}
+
 public class MiningConfig
 {
     public MiningPatternType PatternType { get; set; } = MiningPatternType.AutoClick;
@@ -62,4 +77,5 @@ public class MiningConfig
     // ── Full Auto : detection joueurs + rayon de scan ──
     public bool PlayerSafetyEnabled { get; set; } = true;
     public int ScanRadiusPixels { get; set; } = 300;
+
 }

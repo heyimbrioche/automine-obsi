@@ -19,6 +19,7 @@ public class WallBreakerPattern : IMiningPattern
         Action<string> log,
         Action<int> onProgress,
         Func<bool> safetyCheck,
+        PauseToken pauseToken,
         CancellationToken ct)
     {
         int width = config.WallWidth;
@@ -44,6 +45,7 @@ public class WallBreakerPattern : IMiningPattern
             for (int col = 0; col < width; col++)
             {
                 ct.ThrowIfCancellationRequested();
+                await pauseToken.WaitIfPausedAsync(ct);
 
                 if (!safetyCheck())
                 {

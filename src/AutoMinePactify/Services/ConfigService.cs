@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -63,6 +64,24 @@ public static class ConfigService
         // Full Auto
         public bool PlayerSafetyEnabled { get; set; } = true;
         public int ScanRadius { get; set; } = 300;
+
+        // ── Commandes rapides (module autonome) ──
+        public bool QuickCommandsGlobalEnabled { get; set; } = true;
+        public List<QuickCommandEntry> QuickCommands { get; set; } = new()
+        {
+            new QuickCommandEntry { Name = "Feed", Key = "F7", Command = "/feed", Speed = QuickCommandSpeed.Fast, Enabled = true }
+        };
+
+        // --- Legacy (migration des anciennes settings) ---
+        // Ces champs sont gardes pour pouvoir lire les anciens fichiers
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? QuickCommandKey { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? QuickCommandText { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool? QuickCommandEnabled { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public QuickCommandSpeed? QuickCmdSpeed { get; set; }
     }
 
     /// <summary>
@@ -77,7 +96,33 @@ public static class ConfigService
                 return new SavedSettings();
 
             string json = File.ReadAllText(ConfigPath);
-            return JsonSerializer.Deserialize<SavedSettings>(json, JsonOptions) ?? new SavedSettings();
+            var settings = JsonSerializer.Deserialize<SavedSettings>(json, JsonOptions) ?? new SavedSettings();
+
+            // Migration : si les anciennes settings existent et pas de nouvelles commandes
+            if (settings.QuickCommandKey != null && settings.QuickCommandText != null
+                && (settings.QuickCommands == null || settings.QuickCommands.Count == 0))
+            {
+                settings.QuickCommands = new List<QuickCommandEntry>
+                {
+                    new()
+                    {
+                        Name = "Commande",
+                        Key = settings.QuickCommandKey,
+                        Command = settings.QuickCommandText,
+                        Speed = settings.QuickCmdSpeed ?? QuickCommandSpeed.Fast,
+                        Enabled = settings.QuickCommandEnabled ?? true
+                    }
+                };
+                settings.QuickCommandsGlobalEnabled = settings.QuickCommandEnabled ?? true;
+            }
+
+            // Nettoyer les anciens champs
+            settings.QuickCommandKey = null;
+            settings.QuickCommandText = null;
+            settings.QuickCommandEnabled = null;
+            settings.QuickCmdSpeed = null;
+
+            return settings;
         }
         catch
         {

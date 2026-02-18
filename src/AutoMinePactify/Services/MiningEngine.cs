@@ -21,8 +21,10 @@ public class MiningEngine
     private readonly PickaxeChecker _pickaxeChecker;
     private CancellationTokenSource? _cts;
     private Task? _miningTask;
+    private PauseToken? _pauseToken;
 
     public EngineState State { get; private set; } = EngineState.Idle;
+    public bool IsPaused => _pauseToken?.IsPaused == true;
     public ObsidianDetector ObsidianDetector => _obsidianDetector;
 
     // ─── Events ─────────────────────────────────────────────────────
@@ -130,6 +132,7 @@ public class MiningEngine
         Log("Ca commence dans 3 secondes...");
 
         _cts = new CancellationTokenSource();
+        _pauseToken = new PauseToken();
         var ct = _cts.Token;
 
         _miningTask = Task.Run(async () =>
@@ -158,6 +161,7 @@ public class MiningEngine
                     msg => Log(msg),
                     progress => OnProgressChanged?.Invoke(progress),
                     () => _safety.IsSafeToContinue(),
+                    _pauseToken,
                     ct);
 
                 Log("Fini ! Tout a ete mine.");
@@ -192,11 +196,31 @@ public class MiningEngine
         }
     }
 
+    /// <summary>Met en pause le minage en cours. Le bot s'arrete a la prochaine action.</summary>
+    public void PauseMining()
+    {
+        if (State != EngineState.Mining || _pauseToken == null) return;
+        _pauseToken.Pause();
+        _input.ReleaseAllKeys();
+        Log("Minage en pause. Appuie sur le bouton pour reprendre.");
+        SetState(EngineState.Paused);
+    }
+
+    /// <summary>Reprend le minage apres une pause.</summary>
+    public void ResumeMining()
+    {
+        if (State != EngineState.Paused || _pauseToken == null) return;
+        Log("Reprise du minage...");
+        SetState(EngineState.Mining);
+        _pauseToken.Resume();
+    }
+
     public void StopMining()
     {
         if (_cts != null && !_cts.IsCancellationRequested)
         {
             Log("On arrete le minage...");
+            _pauseToken?.Resume(); // debloquer si en pause pour que le cancel passe
             _cts.Cancel();
         }
         _input.ReleaseAllKeys();
@@ -204,6 +228,7 @@ public class MiningEngine
 
     public void EmergencyStop()
     {
+        _pauseToken?.Resume(); // debloquer si en pause
         _cts?.Cancel();
         _input.ReleaseAllKeys();
         _safety.EmergencyRelease();

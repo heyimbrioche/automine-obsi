@@ -43,6 +43,11 @@ public static class NativeMethods
     [DllImport("user32.dll")]
     public static extern short GetAsyncKeyState(int vKey);
 
+    [DllImport("user32.dll")]
+    public static extern uint MapVirtualKeyW(uint uCode, uint uMapType);
+
+    public const uint MAPVK_VK_TO_VSC = 0;
+
     // ─── Delegates ──────────────────────────────────────────────────
 
     public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
@@ -77,6 +82,8 @@ public static class NativeMethods
     public const ushort VK_SHIFT = 0x10;
     public const ushort VK_LSHIFT = 0xA0;
     public const ushort VK_LCONTROL = 0xA2;
+    public const ushort VK_RETURN = 0x0D;
+    public const ushort VK_T = 0x54;
     public const ushort VK_ESCAPE = 0x1B;
     public const ushort VK_F6 = 0x75;
     public const ushort VK_F8 = 0x77;
