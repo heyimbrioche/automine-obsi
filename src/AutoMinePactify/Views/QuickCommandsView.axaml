@@ -158,7 +158,7 @@
                                                 <Button Grid.Column="2"
                                                         Classes="deleteBtn"
                                                         Content="✕"
-                                                        Command="{Binding $parent[ItemsControl].((vm:QuickCommandsViewModel)DataContext).RemoveCommandCommand}"
+                                                        Command="{Binding DataContext.RemoveCommandCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}"/>
                                             </Grid>
 
