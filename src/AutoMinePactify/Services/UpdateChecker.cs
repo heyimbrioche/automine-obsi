@@ -20,7 +20,7 @@ public static class UpdateChecker
     /// <summary>
     /// Version actuelle du programme. A incrementer a chaque release.
     /// </summary>
-    public const string CurrentVersion = "1.6.0";
+    public const string CurrentVersion = "1.6.1";
 
     /// <summary>
     /// Ton repo GitHub : "pseudo/nom-du-repo"

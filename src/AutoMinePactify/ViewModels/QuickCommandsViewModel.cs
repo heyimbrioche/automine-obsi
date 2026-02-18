@@ -79,20 +79,27 @@ public partial class QuickCommandsViewModel : ObservableObject, IDisposable
                         continue;
                     }
 
-                    // Snapshot commands on UI thread
-                    List<(int vk, string cmd, QuickCommandSpeed speed, bool enabled, string name)>? snapshot = null;
+                    // Snapshot commands on UI thread (supports modifier combos)
+                    List<(bool shift, bool ctrl, bool alt, int mainVk, string cmd, QuickCommandSpeed speed, string name, bool capturing)>? snapshot = null;
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         snapshot = Commands
                             .Where(c => c.Enabled && !string.IsNullOrWhiteSpace(c.Key) && !string.IsNullOrWhiteSpace(c.Command))
-                            .Select(c => (
-                                vk: HotkeyService.KeyNameToVkCode(c.Key),
-                                cmd: c.Command,
-                                speed: c.Speed,
-                                enabled: c.Enabled,
-                                name: c.Name
-                            ))
-                            .Where(x => x.vk > 0 && x.vk != 0x75 && x.vk != 0x77) // pas F6/F8
+                            .Select(c =>
+                            {
+                                var parsed = HotkeyService.ParseKeybind(c.Key);
+                                return (
+                                    shift: parsed.shift,
+                                    ctrl: parsed.ctrl,
+                                    alt: parsed.alt,
+                                    mainVk: parsed.mainVk,
+                                    cmd: c.Command,
+                                    speed: c.Speed,
+                                    name: c.Name,
+                                    capturing: c.IsCapturing
+                                );
+                            })
+                            .Where(x => x.mainVk > 0 && x.mainVk != 0x75 && x.mainVk != 0x77 && !x.capturing) // pas F6/F8, pas en capture
                             .ToList();
                     });
 
@@ -102,25 +109,35 @@ public partial class QuickCommandsViewModel : ObservableObject, IDisposable
                         continue;
                     }
 
-                    foreach (var (vk, cmd, speed, enabled, name) in snapshot)
+                    foreach (var (shift, ctrl, alt, mainVk, cmd, speed, name, _) in snapshot)
                     {
-                        bool isDown = (Helpers.NativeMethods.GetAsyncKeyState(vk) & 0x8000) != 0;
-                        wasDown.TryGetValue(vk, out bool was);
+                        bool isDown = (Helpers.NativeMethods.GetAsyncKeyState(mainVk) & 0x8000) != 0;
+
+                        // Verifier que les modifiers correspondent
+                        if (isDown)
+                        {
+                            bool shiftOk = !shift || HotkeyService.IsShiftDown();
+                            bool ctrlOk = !ctrl || HotkeyService.IsCtrlDown();
+                            bool altOk = !alt || HotkeyService.IsAltDown();
+                            isDown = shiftOk && ctrlOk && altOk;
+                        }
+
+                        wasDown.TryGetValue(mainVk, out bool was);
 
                         if (isDown && !was)
                         {
-                            // Key just pressed
+                            // Key just pressed with matching modifiers
                             if (_mcService.IsMinecraftFocused())
                             {
                                 _ = ExecuteCommand(cmd, speed, name);
                             }
                         }
 
-                        wasDown[vk] = isDown;
+                        wasDown[mainVk] = isDown;
                     }
 
                     // Clean up old keys that are no longer registered
-                    var activeVks = snapshot.Select(s => s.vk).ToHashSet();
+                    var activeVks = snapshot.Select(s => s.mainVk).ToHashSet();
                     foreach (var key in wasDown.Keys.ToList())
                     {
                         if (!activeVks.Contains(key))

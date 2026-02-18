@@ -58,6 +58,41 @@
             <Setter Property="Foreground" Value="#FFFFFF"/>
         </Style>
 
+        <!-- Bouton capture keybind -->
+        <Style Selector="Button.keybindBtn">
+            <Setter Property="Background" Value="#1E1533"/>
+            <Setter Property="Foreground" Value="#C4B5FD"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="Consolas, monospace"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="BorderBrush" Value="#3B2667"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+        </Style>
+        <Style Selector="Button.keybindBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2A1B45"/>
+            <Setter Property="BorderBrush" Value="#A855F7"/>
+        </Style>
+
+        <Style Selector="Button.keybindCapturing">
+            <Setter Property="Background" Value="#2A1B45"/>
+            <Setter Property="Foreground" Value="#A855F7"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="BorderBrush" Value="#A855F7"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+        </Style>
+
         <!-- Bouton delete -->
         <Style Selector="Button.deleteBtn">
             <Setter Property="Background" Value="Transparent"/>
@@ -162,14 +197,20 @@
                                                         CommandParameter="{Binding}"/>
                                             </Grid>
 
-                                            <!-- Ligne 2 : Touche + Commande -->
-                                            <Grid ColumnDefinitions="100,8,*">
+                                            <!-- Ligne 2 : Touche (capture) + Commande -->
+                                            <Grid ColumnDefinitions="120,8,*">
                                                 <StackPanel Grid.Column="0" Spacing="2">
                                                     <TextBlock Text="Touche" FontSize="10" Foreground="#6B7080"/>
-                                                    <TextBox Text="{Binding Key}"
-                                                             Watermark="F7"
-                                                             FontSize="11"
-                                                             Height="30"/>
+                                                    <!-- Bouton normal : affiche la touche, clic pour capturer -->
+                                                    <Button Classes="keybindBtn"
+                                                            Content="{Binding KeyDisplayText}"
+                                                            Command="{Binding CaptureKeyCommand}"
+                                                            IsVisible="{Binding !IsCapturing}"/>
+                                                    <!-- Bouton en mode capture : clignote -->
+                                                    <Button Classes="keybindCapturing"
+                                                            Content="{Binding KeyDisplayText}"
+                                                            Command="{Binding CaptureKeyCommand}"
+                                                            IsVisible="{Binding IsCapturing}"/>
                                                 </StackPanel>
 
                                                 <StackPanel Grid.Column="2" Spacing="2">
@@ -303,11 +344,12 @@
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock FontSize="11" Foreground="#9B8EC4" TextWrapping="Wrap" LineHeight="17">
-1. Ajoute autant de commandes que tu veux
-2. Choisis une touche differente pour chaque
-3. Quand tu appuies sur la touche dans Minecraft, la commande s'execute
-4. Ne mets pas F6 ou F8, elles sont reservees au minage
-5. Fonctionne uniquement quand Minecraft est au premier plan
+1. Clique sur le bouton de touche puis appuie sur ta touche
+2. Combinaisons supportees : Shift+P, Ctrl+F7, etc.
+3. Souris : Mouse4, Mouse5, MouseMiddle
+4. Pave numerique : Num0-Num9
+5. Ne mets pas F6 ou F8, reservees au minage
+6. Fonctionne uniquement quand Minecraft est au premier plan
                     </TextBlock>
                 </StackPanel>
             </Border>
