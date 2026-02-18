@@ -199,20 +199,32 @@ public class MiningEngine
     /// <summary>Met en pause le minage en cours. Le bot s'arrete a la prochaine action.</summary>
     public void PauseMining()
     {
-        if (State != EngineState.Mining || _pauseToken == null) return;
+        Log($"[PAUSE] Tentative de pause... State={State}, PauseToken={_pauseToken != null}");
+        if (State != EngineState.Mining || _pauseToken == null)
+        {
+            Log($"[PAUSE] Impossible : State={State}, PauseToken={_pauseToken != null}");
+            return;
+        }
         _pauseToken.Pause();
         _input.ReleaseAllKeys();
-        Log("Minage en pause. Appuie sur le bouton pour reprendre.");
+        Log("⏸ Minage en pause ! Appuie sur F6 ou le bouton pour reprendre.");
         SetState(EngineState.Paused);
+        Log($"[PAUSE] OK - State={State}, IsPaused={_pauseToken.IsPaused}");
     }
 
     /// <summary>Reprend le minage apres une pause.</summary>
     public void ResumeMining()
     {
-        if (State != EngineState.Paused || _pauseToken == null) return;
-        Log("Reprise du minage...");
+        Log($"[RESUME] Tentative de reprise... State={State}, PauseToken={_pauseToken != null}");
+        if (State != EngineState.Paused || _pauseToken == null)
+        {
+            Log($"[RESUME] Impossible : State={State}, PauseToken={_pauseToken != null}");
+            return;
+        }
+        Log("▶ Reprise du minage !");
         SetState(EngineState.Mining);
         _pauseToken.Resume();
+        Log($"[RESUME] OK - State={State}, IsPaused={_pauseToken.IsPaused}");
     }
 
     public void StopMining()

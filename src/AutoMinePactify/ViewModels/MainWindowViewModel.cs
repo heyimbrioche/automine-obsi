@@ -172,13 +172,21 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void PauseResumeMining()
     {
+        AddLog($"[DEBUG] PauseResume: State={_engine.State}, IsPaused={_engine.IsPaused}");
+
         if (_engine.IsPaused)
         {
+            AddLog("Reprise du minage...");
             _engine.ResumeMining();
         }
         else if (_engine.State == EngineState.Mining)
         {
+            AddLog("Mise en pause...");
             _engine.PauseMining();
+        }
+        else
+        {
+            AddLog($"[DEBUG] Impossible de pause/resume: etat={_engine.State}");
         }
     }
 
@@ -223,19 +231,24 @@ public partial class MainWindowViewModel : ObservableObject, IDisposable
 
     private void ToggleMining()
     {
+        AddLog($"[F6] State={_engine.State}, IsPaused={_engine.IsPaused}");
+
         if (_engine.IsPaused)
         {
             // Si en pause, F6 reprend
+            AddLog("F6 -> Reprise du minage");
             _engine.ResumeMining();
         }
         else if (_engine.State == EngineState.Mining)
         {
             // Si en train de miner, F6 met en pause
+            AddLog("F6 -> Mise en pause");
             _engine.PauseMining();
         }
         else
         {
             // Sinon, F6 lance le minage
+            AddLog("F6 -> Lancement du minage");
             MaxProgress = Settings.TotalBlocks;
             Progress = 0;
             var config = Settings.ToConfig();

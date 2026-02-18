@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -7,29 +8,34 @@ using AutoMinePactify.Services;
 
 namespace AutoMinePactify.Views;
 
+[SupportedOSPlatform("windows")]
 public partial class SplashWindow : Window
 {
     private readonly Border _loadingBar;
     private readonly TextBlock _loadingText;
     private readonly TextBlock _versionText;
 
-    /// <summary>
-    /// Resultat de la verification de mise a jour (dispo apres RunLoadingAnimation).
-    /// </summary>
     public UpdateChecker.UpdateResult? UpdateResult { get; private set; }
+    public LicenseResult? LicenseCheckResult { get; private set; }
 
     private readonly string[] _loadingMessages = new[]
     {
         "Initialisation...",
+        "Verification de la licence...",
         "Chargement des modules...",
         "Verification des mises a jour...",
         "Preparation du minage...",
         "C'est parti !"
     };
 
-    public SplashWindow()
+    private readonly LicenseService _licenseService;
+
+    public SplashWindow() : this(new LicenseService()) { }
+
+    public SplashWindow(LicenseService licenseService)
     {
         InitializeComponent();
+        _licenseService = licenseService;
 
         _loadingBar = this.FindControl<Border>("LoadingBar")!;
         _loadingText = this.FindControl<TextBlock>("LoadingText")!;
@@ -38,7 +44,6 @@ public partial class SplashWindow : Window
 
     public async Task RunLoadingAnimation()
     {
-        // Afficher la version
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             _versionText.Text = $"v{UpdateChecker.CurrentVersion}";
@@ -57,17 +62,29 @@ public partial class SplashWindow : Window
                 _loadingBar.Width = maxWidth * progress;
             });
 
-            // A l'etape "Verification des mises a jour", on verifie vraiment
-            if (i == 2)
+            if (step == 1)
+            {
+                try
+                {
+                    LicenseCheckResult = await _licenseService.ValidateCachedAsync();
+                }
+                catch
+                {
+                    LicenseCheckResult = new LicenseResult
+                    {
+                        Status = LicenseStatus.InvalidKey,
+                        Message = "Erreur lors de la verification."
+                    };
+                }
+                await Task.Delay(100);
+            }
+            else if (step == 3)
             {
                 try
                 {
                     UpdateResult = await UpdateChecker.CheckForUpdate();
                 }
-                catch
-                {
-                    // Pas grave si ca marche pas
-                }
+                catch { }
                 await Task.Delay(100);
             }
             else

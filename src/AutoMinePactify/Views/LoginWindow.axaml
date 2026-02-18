@@ -1,0 +1,130 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AutoMinePactify.Views.LoginWindow"
+        Title="AutoMine Obsidienne - Activation"
+        Width="440" Height="380"
+        CanResize="False"
+        SystemDecorations="None"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True">
+
+    <Border CornerRadius="16"
+            ClipToBounds="True">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#0D0B1A" Offset="0"/>
+                <GradientStop Color="#1A1035" Offset="0.5"/>
+                <GradientStop Color="#0D0B1A" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,*">
+
+            <!-- Glow effect -->
+            <Border Grid.Row="0" Grid.RowSpan="6"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Width="160" Height="160"
+                    Margin="0,20,0,0"
+                    CornerRadius="80"
+                    Opacity="0.12">
+                <Border.Background>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#A855F7" Offset="0"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <!-- Logo + titre -->
+            <StackPanel Grid.Row="0" HorizontalAlignment="Center" Spacing="4" Margin="0,30,0,0">
+                <Image Source="/Assets/logo.png"
+                       Width="80" Height="55"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,6"/>
+                <TextBlock Text="AutoMine Obsidienne"
+                           FontSize="20" FontWeight="Bold"
+                           Foreground="#E8EAF0"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Activation de la licence"
+                           FontSize="12"
+                           Foreground="#7C3AED"
+                           HorizontalAlignment="Center"
+                           FontWeight="SemiBold"/>
+            </StackPanel>
+
+            <!-- Champ licence -->
+            <StackPanel Grid.Row="1" Margin="40,24,40,0" Spacing="6">
+                <TextBlock Text="Cle de licence"
+                           FontSize="11"
+                           Foreground="#8B8DA3"
+                           Margin="4,0,0,0"/>
+                <TextBox Name="KeyInput"
+                         Watermark="XXXXX-XXXXX-XXXXX-XXXXX"
+                         FontSize="14"
+                         FontFamily="Consolas, monospace"
+                         Padding="12,10"
+                         CornerRadius="8"
+                         Background="#15132A"
+                         Foreground="#E8EAF0"
+                         BorderBrush="#2A2545"
+                         BorderThickness="1"/>
+            </StackPanel>
+
+            <!-- Bouton activer -->
+            <Button Name="ActivateButton"
+                    Grid.Row="2"
+                    Content="Activer"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    Margin="40,16,40,0"
+                    Padding="0,12"
+                    FontSize="14"
+                    FontWeight="SemiBold"
+                    Foreground="White"
+                    CornerRadius="8"
+                    Background="#7C3AED"
+                    Click="OnActivateClick"/>
+
+            <!-- Message d'erreur -->
+            <TextBlock Name="ErrorText"
+                       Grid.Row="3"
+                       Text=""
+                       FontSize="11"
+                       Foreground="#EF4444"
+                       HorizontalAlignment="Center"
+                       TextWrapping="Wrap"
+                       Margin="40,10,40,0"/>
+
+            <!-- Lien reset HWID -->
+            <TextBlock Name="HwidHint"
+                       Grid.Row="4"
+                       Text=""
+                       FontSize="10"
+                       Foreground="#6B7080"
+                       HorizontalAlignment="Center"
+                       TextWrapping="Wrap"
+                       Margin="40,4,40,0"/>
+
+            <!-- Fermer -->
+            <Button Name="CloseButton"
+                    Grid.Row="5"
+                    Content="Fermer"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    Margin="0,0,0,18"
+                    Padding="20,6"
+                    FontSize="11"
+                    Foreground="#6B7080"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Click="OnCloseClick"/>
+        </Grid>
+
+        <!-- Bordure subtile -->
+        <Border.Effect>
+        </Border.Effect>
+    </Border>
+</Window>

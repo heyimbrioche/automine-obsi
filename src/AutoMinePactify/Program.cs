@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Avalonia;
@@ -12,6 +13,9 @@ class Program
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern int MessageBox(IntPtr hWnd, string text, string caption, uint type);
 
+    [DllImport("kernel32.dll")]
+    private static extern bool IsDebuggerPresent();
+
     private const uint MB_OK = 0x00000000;
     private const uint MB_ICONERROR = 0x00000010;
 
@@ -20,6 +24,11 @@ class Program
     {
         try
         {
+            if (Debugger.IsAttached || IsDebuggerPresent())
+            {
+                Environment.Exit(0);
+            }
+
             if (!AdminHelper.IsRunAsAdmin())
             {
                 MessageBox(IntPtr.Zero,
