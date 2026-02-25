@@ -1,15 +1,6 @@
-# ⛏️ AutoMine Obsidienne - Pactify Edition
+# ⛏️ AutoMine Pactify
 
-Bot de minage automatique d'obsidienne pour le serveur **Pactify**.
-
-## 🎯 Fonctionnalités
-
-- **Minage en colonne** : mine automatiquement l'obsidienne en colonnes avec `/home` et `/sethome`
-- **Auto-click** : clic automatique configurable
-- **Commandes rapides** : exécute des commandes chat avec des raccourcis clavier personnalisés
-- **Système de pause** : mets en pause et reprends le minage à tout moment (F6)
-- **Arrêt d'urgence** : stoppe tout instantanément (F8)
-- **Configurable** : vitesse de déplacement, profondeur, largeur, longueur...
+Bot de minage et d'automatisation pour le serveur **Pactify**.
 
 ## 📥 Téléchargement
 
@@ -17,27 +8,51 @@ Télécharge la dernière version dans l'onglet **[Releases](../../releases/late
 
 > Fichier : `AutoMinePactify.exe` — aucune installation requise.
 
-## 🔑 Licence
+---
 
-Une clé de licence est nécessaire pour utiliser le programme.
-Contacte le vendeur pour obtenir ta clé.
+## 🎯 Fonctionnalités
+
+### ⛏️ Auto Mine
+Mine automatiquement l'obsidienne en colonnes avec `/home` et `/sethome`. Plusieurs modes disponibles : Auto-Clic, Casse-Mur, Casse-Sol, Colonne et Full Auto.
+
+![Auto Mine](screenshots/auto-mine.jpg)
+
+---
+
+### ✨ Auto Enchant
+Farm les squelettes jusqu'au niveau XP cible, enchante automatiquement l'objet dans la table, puis retourne au spot de farm et recommence en boucle.
+
+![Auto Enchant](screenshots/auto-enchante.jpg)
+
+---
+
+### 🔨 Auto Réparation
+Farm les squelettes jusqu'au niveau 39, répare l'item sur l'enclume avec les diamants configurés, puis dépose dans un coffre ou via `/bank` — tout en boucle.
+
+![Auto Réparation](screenshots/auto-repair.jpg)
+
+---
+
+### ⚡ Commandes Rapides
+Exécute des commandes chat Minecraft avec des raccourcis clavier personnalisés. Supporte les combinaisons `Shift+P`, `Ctrl+F7`, les touches souris, le pavé numérique, etc.
+
+![Commandes Rapides](screenshots/commande-rapide.jpg)
+
+---
 
 ## 🕹️ Utilisation
 
 1. Lance `AutoMinePactify.exe` (en administrateur)
 2. Entre ta clé de licence lors de la première utilisation
-3. Configure tes paramètres de minage
-4. Place-toi dans ta mine sur Pactify
-5. Appuie sur **F6** pour démarrer/pauser le bot
+3. Configure tes paramètres selon le module voulu
+4. Place-toi correctement dans Minecraft
+5. Appuie sur **F6** pour démarrer / mettre en pause
 6. **F8** pour arrêt d'urgence
 
-## ⌨️ Commandes rapides
+## 🔑 Licence
 
-- Va dans l'onglet **Commandes Rapides**
-- Clique sur le bouton de touche et appuie sur ta touche
-- Combinaisons supportées : `Shift+P`, `Ctrl+F7`, etc.
-- Souris : `Mouse4`, `Mouse5`
-- Pavé numérique : `Num0` à `Num9`
+Une clé de licence est nécessaire pour utiliser le programme.  
+Contacte le vendeur pour obtenir ta clé.
 
 ## 📋 Changelog
 

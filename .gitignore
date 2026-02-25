@@ -1,4 +1,6 @@
-# Tout ignorer sauf README et .gitignore
+﻿# Tout ignorer sauf README, .gitignore et screenshots
 *
 !.gitignore
 !README.md
+!screenshots/
+!screenshots/**
